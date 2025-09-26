@@ -1,18 +1,30 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaImage, FaVideo, FaCode, FaUser } from 'react-icons/fa';
+import { FaImage, FaVideo, FaCode, FaUser, FaHome } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 
 interface NavbarProps {
   onProfileClick: () => void;
-  selectedOption: string;
-  onOptionSelect: (option: string) => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onProfileClick, selectedOption, onOptionSelect }) => {
+const Navbar: React.FC<NavbarProps> = ({ onProfileClick }) => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Get current page from pathname
+  const getCurrentPage = () => {
+    if (pathname === '/') return 'home';
+    if (pathname === '/image') return 'image';
+    if (pathname === '/video') return 'video';
+    if (pathname === '/api-docs') return 'api';
+    return 'home';
+  };
+
+  const selectedOption = getCurrentPage();
 
   // Handle scroll events
   useEffect(() => {
@@ -26,10 +38,15 @@ const Navbar: React.FC<NavbarProps> = ({ onProfileClick, selectedOption, onOptio
   }, []);
 
   const options = [
-    { id: 'image', label: 'Image', icon: FaImage },
-    { id: 'video', label: 'Video', icon: FaVideo },
-    { id: 'api', label: 'API', icon: FaCode },
+    { id: 'home', label: 'Home', icon: FaHome, path: '/' },
+    { id: 'image', label: 'Image', icon: FaImage, path: '/image' },
+    { id: 'video', label: 'Video', icon: FaVideo, path: '/video' },
+    { id: 'api', label: 'API', icon: FaCode, path: '/api-docs' },
   ];
+
+  const handleNavigation = (path: string) => {
+    router.push(path);
+  };
 
   return (
     <motion.nav
@@ -82,12 +99,12 @@ const Navbar: React.FC<NavbarProps> = ({ onProfileClick, selectedOption, onOptio
                       }}
                     >
                       <Button
-                        variant={selectedOption === option.id ? 'default' : 'ghost'}
-                        onClick={() => onOptionSelect(option.id)}
+                        variant={pathname === option.path ? 'default' : 'ghost'}
+                        onClick={() => handleNavigation(option.path)}
                         size="sm"
                         className={`
                           flex items-center space-x-1 transition-all duration-300 text-xs
-                          ${selectedOption === option.id 
+                          ${pathname === option.path 
                             ? 'bg-blue-600 hover:bg-blue-700 text-white' 
                             : 'text-slate-300 hover:text-white hover:bg-slate-800'
                           }
@@ -159,11 +176,11 @@ const Navbar: React.FC<NavbarProps> = ({ onProfileClick, selectedOption, onOptio
                       }}
                     >
                       <Button
-                        variant={selectedOption === option.id ? 'default' : 'ghost'}
-                        onClick={() => onOptionSelect(option.id)}
+                        variant={pathname === option.path ? 'default' : 'ghost'}
+                        onClick={() => handleNavigation(option.path)}
                         className={`
                           flex items-center space-x-2 transition-all duration-300
-                          ${selectedOption === option.id 
+                          ${pathname === option.path 
                             ? 'bg-blue-600 hover:bg-blue-700 text-white' 
                             : 'text-slate-300 hover:text-white hover:bg-slate-800'
                           }
