@@ -1,39 +1,52 @@
 import { NextResponse } from "next/server";
+import { authAdmin } from "@/lib/firebaseAdmin";
 
 export async function POST(req: Request) {
   try {
     // Get authorization header from the incoming request
     const authHeader = req.headers.get('authorization');
     
-    if (!authHeader) {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json(
-        { error: "Authorization header is required" }, 
+        { error: "Authorization header with Bearer token is required" }, 
         { status: 401 }
       );
     }
 
-    const formData = await req.formData();
-    const file = formData.get("file") as File;
-
-    if (!file) {
+    // Verify the token
+    const idToken = authHeader.split('Bearer ')[1];
+    try {
+      await authAdmin.verifyIdToken(idToken);
+    } catch (error) {
+      console.error('Token verification failed:', error);
       return NextResponse.json(
-        { error: "No file provided" }, 
+        { error: "Invalid or expired token" },
+        { status: 401 }
+      );
+    }
+
+    const body = await req.json();
+    const { imageUrl } = body;
+
+    if (!imageUrl) {
+      return NextResponse.json(
+        { error: "No image URL provided" }, 
         { status: 400 }
       );
     }
 
-    const forwardForm = new FormData();
-    forwardForm.append("file", file, (file as any).name ?? "upload.jpg");
+    console.log('Processing image from Firebase Storage:', imageUrl);
 
-    // Use the new API endpoint with authentication
+    // Forward the image URL to Python backend
     const pyUrl = process.env.PYTHON_YOLO_URL ?? "http://127.0.0.1:8000/api/v1/image/predict";
 
     const pyRes = await fetch(pyUrl, {
       method: "POST",
-      body: forwardForm,
       headers: {
+        'Content-Type': 'application/json',
         'Authorization': authHeader, // Forward the authorization header
       },
+      body: JSON.stringify({ image_url: imageUrl }),
     });
 
     if (!pyRes.ok) {

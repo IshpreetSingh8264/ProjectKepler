@@ -1,10 +1,14 @@
-fastapi
-uvicorn[standard]
-ultralytics
-opencv-python-headless
-numpy
-firebase-admin
-httpx
-python-multipart
-python-jose[cryptography]
-python-dotenv
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+python-dotenv==1.0.0
+
+# Add your custom model dependencies here
+# For example:
+# torch
+# torchvision
+# transformers
+# numpy
+# pillow
+# scikit-learn
+# tensorflow

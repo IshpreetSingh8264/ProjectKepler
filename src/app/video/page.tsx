@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import Navbar from '@/components/Navbar';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
-const VideoPage = () => {
+const VideoPageContent = () => {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -300,6 +301,14 @@ const VideoPage = () => {
         </motion.div>
       </div>
     </div>
+  );
+};
+
+const VideoPage = () => {
+  return (
+    <ProtectedRoute requireAuth={true}>
+      <VideoPageContent />
+    </ProtectedRoute>
   );
 };
 

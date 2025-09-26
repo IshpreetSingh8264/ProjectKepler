@@ -1,0 +1,71 @@
+"""
+ProjectKepler ML API - Clean and Simple
+Uses routes.py for all route definitions
+"""
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+import logging
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Create FastAPI app
+app = FastAPI(
+    title="ProjectKepler ML API",
+    description="Simple ML API with Firebase authentication",
+    version="1.0.0"
+)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Configure as needed
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Import and register routes
+from routes import (
+    root,
+    health_check,
+    validate_key,
+    model_status,
+    predict,
+    check_origin
+)
+
+# Register all routes
+app.get("/")(root)
+app.get("/health")(health_check)
+app.post("/validate-key")(validate_key)
+app.get("/model-status")(model_status)
+app.post("/predict")(predict)
+app.get("/check-origin")(check_origin)
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize the application"""
+    logger.info("🚀 Starting ProjectKepler ML API...")
+    logger.info("✅ All routes registered successfully")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Clean up on shutdown"""
+    logger.info("🛑 Shutting down ProjectKepler ML API...")
+
+if __name__ == "__main__":
+    import uvicorn
+    
+    port = int(os.getenv("PORT", "8000"))
+    host = os.getenv("HOST", "0.0.0.0")
+    
+    logger.info(f"Starting server on {host}:{port}")
+    uvicorn.run("main:app", host=host, port=port, reload=True)

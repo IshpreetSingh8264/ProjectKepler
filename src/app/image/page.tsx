@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import Navbar from '@/components/Navbar';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
-const ImagePage = () => {
+const ImagePageContent = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -300,6 +301,14 @@ const ImagePage = () => {
         </motion.div>
       </div>
     </div>
+  );
+};
+
+const ImagePage = () => {
+  return (
+    <ProtectedRoute requireAuth={true}>
+      <ImagePageContent />
+    </ProtectedRoute>
   );
 };
 
