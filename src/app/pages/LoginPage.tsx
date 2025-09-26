@@ -1,7 +1,7 @@
 // Authentication page wrapper
 'use client';
 
-import AuthForm from '@/components/AuthForm';
+import { AuthForm } from '@/components/pages/auth';
 
 interface LoginPageProps {
   onLoginSuccess: () => void;

@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { saveUser, validateLogin, userExists } from '@/lib/localStorage';
-import GoogleLogo from '@/components/GoogleLogo';
+import GoogleLogo from './GoogleLogo';
 
 interface AuthFormProps {
   onLoginSuccess: () => void;

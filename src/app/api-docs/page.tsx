@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { FaCode, FaRocket, FaLock, FaPlug, FaCog, FaDatabase } from 'react-icons/fa';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Navbar from '@/components/Navbar';
+import { Navbar } from '@/components/common';
 
 export default function ApiDocsPage() {
   const handleProfileClick = () => {

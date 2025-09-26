@@ -1,7 +1,7 @@
 // Profile edit page wrapper
 'use client';
 
-import ProfileEdit from '@/components/ProfileEdit';
+import { ProfileEdit } from '@/components/pages/profile';
 
 interface ProfileEditPageProps {
   onBack: () => void;

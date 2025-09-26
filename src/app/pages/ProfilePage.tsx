@@ -1,7 +1,7 @@
 // Profile completion page wrapper
 'use client';
 
-import ProfileForm from '@/components/ProfileForm';
+import { ProfileForm } from '@/components/pages/profile';
 
 interface ProfilePageProps {
   onComplete: () => void;

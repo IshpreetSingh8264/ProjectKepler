@@ -1,14 +1,14 @@
-// Home page wrapper
-'use client';
+// // Home page wrapper
+// 'use client';
 
-import Home from '@/components/Home';
+// import { Home } from '@/components/pages/home';
 
-interface HomePageProps {
-  onProfileClick: () => void;
-}
+// interface HomePageProps {
+//   onProfileClick: () => void;
+// }
 
-const HomePage: React.FC<HomePageProps> = ({ onProfileClick }) => {
-  return <Home onProfileClick={onProfileClick} />;
-};
+// const HomePage: React.FC<HomePageProps> = ({ onProfileClick }) => {
+//   return <Home onProfileClick={onProfileClick} />;
+// };
 
-export default HomePage;
+// export default HomePage;

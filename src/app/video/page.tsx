@@ -6,7 +6,7 @@ import { FaUpload, FaLink, FaPlay, FaTrash, FaVideo } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import Navbar from '@/components/Navbar';
+import { Navbar } from '@/components/common';
 
 const VideoPage = () => {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
