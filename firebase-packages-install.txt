@@ -1,0 +1,4 @@
+npm install firebase
+# Additional packages that may be needed for API functionality
+npm install crypto-js
+npm install uuid

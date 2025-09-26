@@ -6,6 +6,8 @@ import { FaUpload, FaLink, FaEye, FaTrash, FaImage } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { useAuth } from '@/lib/authContext';
+import { getUserApiKeys } from '@/lib/apiKeyManagement';
 
 interface ImageProcessorProps {
   // No need for onBack prop anymore
@@ -16,7 +18,12 @@ const ImageProcessor: React.FC<ImageProcessorProps> = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [results, setResults] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  
+  const { user } = useAuth();
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -36,10 +43,13 @@ const ImageProcessor: React.FC<ImageProcessorProps> = () => {
     if (files.length > 0) {
       const file = files[0];
       if (file.type.startsWith('image/')) {
+        setSelectedFile(file);
         const reader = new FileReader();
         reader.onload = (e) => {
           setSelectedImage(e.target?.result as string);
           setImageUrl(''); // Clear URL input when file is selected
+          setError(null);
+          setResults(null);
         };
         reader.readAsDataURL(file);
       }
@@ -49,10 +59,13 @@ const ImageProcessor: React.FC<ImageProcessorProps> = () => {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         setSelectedImage(e.target?.result as string);
         setImageUrl(''); // Clear URL input when file is selected
+        setError(null);
+        setResults(null);
       };
       reader.readAsDataURL(file);
     }
@@ -61,21 +74,82 @@ const ImageProcessor: React.FC<ImageProcessorProps> = () => {
   const handleUrlSubmit = () => {
     if (imageUrl.trim()) {
       setSelectedImage(imageUrl.trim());
+      setSelectedFile(null); // Clear selected file when URL is used
+      setError(null);
+      setResults(null);
     }
   };
 
-  const handleDetect = () => {
+  const handleDetect = async () => {
+    if (!user) {
+      setError('Please log in to use image detection');
+      return;
+    }
+
+    if (!selectedFile && !imageUrl.trim()) {
+      setError('Please select an image or provide a URL');
+      return;
+    }
+
     setIsProcessing(true);
-    // Simulate processing time
-    setTimeout(() => {
+    setError(null);
+    setResults(null);
+
+    try {
+      let authToken = '';
+      
+      // Get Firebase ID token for authentication
+      authToken = await user.getIdToken();
+
+      if (!authToken) {
+        setError('Unable to authenticate. Please log in again.');
+        return;
+      }
+
+      let formData = new FormData();
+      
+      if (selectedFile) {
+        // Use uploaded file
+        formData.append('file', selectedFile);
+      } else if (imageUrl.trim()) {
+        // Download image from URL and convert to file
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const file = new File([blob], 'image.jpg', { type: blob.type });
+        formData.append('file', file);
+      }
+
+      const response = await fetch('/api/yolo', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      setResults(result);
+      
+    } catch (error) {
+      console.error('Error processing image:', error);
+      setError(error instanceof Error ? error.message : 'Failed to process image');
+    } finally {
       setIsProcessing(false);
-    }, 3000);
+    }
   };
 
   const clearImage = () => {
     setSelectedImage(null);
+    setSelectedFile(null);
     setImageUrl('');
     setIsProcessing(false);
+    setResults(null);
+    setError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -93,6 +167,19 @@ const ImageProcessor: React.FC<ImageProcessorProps> = () => {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-white mb-2">Image Processor</h1>
             <p className="text-slate-400">Upload or link an image to process</p>
+            
+            {/* Authentication Warning */}
+            {!user && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-4 p-3 bg-yellow-500/20 border border-yellow-500/30 rounded-lg"
+              >
+                <p className="text-yellow-400 text-sm">
+                  ⚠️ Please log in to use the image detection feature
+                </p>
+              </motion.div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -275,13 +362,59 @@ const ImageProcessor: React.FC<ImageProcessorProps> = () => {
                     >
                       <Button
                         onClick={handleDetect}
-                        disabled={isProcessing}
+                        disabled={isProcessing || !user}
                         className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-50"
                       >
                         <FaEye className="h-4 w-4 mr-2" />
                         {isProcessing ? 'Processing...' : 'Detect'}
                       </Button>
                     </motion.div>
+
+                    {/* Error Display */}
+                    <AnimatePresence>
+                      {error && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="mt-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg"
+                        >
+                          <p className="text-red-400 text-sm">{error}</p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Results Display */}
+                    <AnimatePresence>
+                      {results && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="mt-4 p-4 bg-slate-800/50 border border-slate-700 rounded-lg"
+                        >
+                          <h3 className="text-white font-semibold mb-2">Detection Results</h3>
+                          {results.predictions && results.predictions.length > 0 ? (
+                            <div className="space-y-2">
+                              <p className="text-slate-300 text-sm">
+                                Found {results.predictions.length} object(s)
+                              </p>
+                              <div className="max-h-32 overflow-y-auto">
+                                {results.predictions.map((prediction: any, index: number) => (
+                                  <div key={index} className="text-xs text-slate-400 bg-slate-900/50 p-2 rounded">
+                                    <span className="text-blue-400">{prediction.class}</span>
+                                    <span className="mx-2">•</span>
+                                    <span>{(prediction.confidence * 100).toFixed(1)}% confidence</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-slate-400 text-sm">No objects detected</p>
+                          )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </motion.div>
                 ) : (
                   <motion.div

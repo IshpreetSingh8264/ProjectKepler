@@ -1,0 +1,24 @@
+# ProjectKepler NPM Package Installation Commands
+
+# Run these commands in the root directory of the project to install required packages
+
+# Core dependencies that may be missing:
+npm install framer-motion
+npm install react-icons
+npm install @types/react @types/react-dom
+npm install typescript
+
+# Development dependencies:
+npm install --save-dev @types/node
+npm install --save-dev eslint
+npm install --save-dev prettier
+
+# Optional but recommended for better development experience:
+npm install --save-dev @typescript-eslint/eslint-plugin
+npm install --save-dev @typescript-eslint/parser
+
+# All packages in one command (copy and run this if you want to install everything at once):
+npm install framer-motion react-icons @types/react @types/react-dom typescript && npm install --save-dev @types/node eslint prettier @typescript-eslint/eslint-plugin @typescript-eslint/parser
+
+# Verify installation:
+npm list --depth=0

@@ -1,5 +1,10 @@
 fastapi
-uvicorn
+uvicorn[standard]
 ultralytics
 opencv-python-headless
 numpy
+firebase-admin
+httpx
+python-multipart
+python-jose[cryptography]
+python-dotenv
