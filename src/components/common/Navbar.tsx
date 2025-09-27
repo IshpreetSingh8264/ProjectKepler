@@ -49,20 +49,12 @@ const Navbar: React.FC<NavbarProps> = ({ onProfileClick }) => {
   };
 
   return (
-    <motion.nav
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ 
-        opacity: 1, 
-        y: 0,
-        backgroundColor: isScrolled ? 'rgba(15, 23, 42, 0.95)' : 'transparent',
-        backdropFilter: isScrolled ? 'blur(12px)' : 'blur(0px)',
-      }}
-      transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }} // Smoother easing
+    <nav
       className={`
         fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out
         ${isScrolled 
-          ? 'border-b border-slate-700 shadow-lg w-full' 
-          : 'border-b-0 max-w-7xl mx-auto'
+          ? 'bg-slate-900/95 backdrop-blur-md border-b border-slate-700 shadow-lg w-full' 
+          : 'bg-transparent max-w-7xl mx-auto'
         }
       `}
     >
@@ -197,11 +189,7 @@ const Navbar: React.FC<NavbarProps> = ({ onProfileClick }) => {
           </div>
 
           {/* Right side - Profile Button */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-          >
+          <div>
             <Button
               variant="ghost"
               onClick={onProfileClick}
@@ -210,10 +198,10 @@ const Navbar: React.FC<NavbarProps> = ({ onProfileClick }) => {
             >
               <FaUser className={`transition-all duration-300 ${isScrolled ? "h-3 w-3" : "h-4 w-4"}`} />
             </Button>
-          </motion.div>
+          </div>
         </div>
       </div>
-    </motion.nav>
+    </nav>
   );
 };
 

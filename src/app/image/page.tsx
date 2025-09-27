@@ -1,19 +1,26 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaUpload, FaLink, FaEye, FaTrash, FaImage } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Navbar } from '@/components/common';
+import { ProtectedRoute } from '@/components/auth';
 
-const ImagePage = () => {
+const ImagePageContent = () => {
+  const router = useRouter();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleProfileClick = () => {
+    router.push('/profile');
+  };
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -80,7 +87,8 @@ const ImagePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <Navbar onProfileClick={() => {}} />      <div className="container mx-auto px-4 py-8 pt-24">
+      <Navbar onProfileClick={handleProfileClick} />
+      <div className="container mx-auto px-4 py-8 pt-24">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -192,7 +200,7 @@ const ImagePage = () => {
                       <img
                         src={selectedImage}
                         alt="Selected"
-                        className="w-full h-64 object-contain bg-slate-900 rounded-lg"
+                        className="w-full h-64 bg-slate-900 rounded-lg object-cover"
                       />
                       
                       {/* Processing Animation Overlay */}
@@ -273,7 +281,7 @@ const ImagePage = () => {
                       <Button
                         onClick={handleDetect}
                         disabled={isProcessing}
-                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-50"
+                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50"
                       >
                         <FaEye className="h-4 w-4 mr-2" />
                         {isProcessing ? 'Processing...' : 'Detect'}
@@ -300,6 +308,14 @@ const ImagePage = () => {
         </motion.div>
       </div>
     </div>
+  );
+};
+
+const ImagePage = () => {
+  return (
+    <ProtectedRoute requireAuth={true}>
+      <ImagePageContent />
+    </ProtectedRoute>
   );
 };
 

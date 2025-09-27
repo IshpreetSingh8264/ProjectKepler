@@ -1,16 +1,62 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { FaCode, FaRocket, FaLock, FaPlug, FaCog, FaDatabase } from 'react-icons/fa';
+import { FaCode, FaRocket, FaLock, FaPlug, FaCog, FaDatabase, FaKey, FaArrowLeft } from 'react-icons/fa';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/common';
+import { ApiKeysManager } from '@/components/modals';
+import { useAuth } from '@/lib/authContext';
 
 export default function ApiDocsPage() {
+  const { user } = useAuth();
+  const [showApiKeys, setShowApiKeys] = useState(false);
+  const router = useRouter();
+
   const handleProfileClick = () => {
-    // Profile functionality would be handled by routing
-    console.log('Profile clicked');
+    // Navigate to profile page
+    router.push('/profile');
   };
+
+  if (showApiKeys) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <Navbar onProfileClick={handleProfileClick} />
+        
+        <div className="pt-20 pb-8 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            {/* Back Button */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mb-6"
+            >
+              <Button
+                onClick={() => setShowApiKeys(false)}
+                variant="ghost"
+                className="text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+              >
+                <FaArrowLeft className="mr-2 h-4 w-4" />
+                Back to API Documentation
+              </Button>
+            </motion.div>
+
+            {/* API Keys Manager */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <ApiKeysManager />
+            </motion.div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -60,19 +106,43 @@ export default function ApiDocsPage() {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="text-xl text-slate-300 max-w-3xl mx-auto mb-8 leading-relaxed"
             >
-              Coming Soon - Comprehensive API integration capabilities for developers. 
+              Comprehensive API integration capabilities for developers. 
               Build powerful applications with our processing services.
             </motion.p>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-full text-lg font-semibold opacity-60"
-            >
-              <FaCog className="mr-2 animate-spin" />
-              Under Development
-            </motion.div>
+            {user ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+              >
+                <Button
+                  onClick={() => setShowApiKeys(true)}
+                  className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-8 py-3 text-lg"
+                >
+                  <FaKey className="mr-2" />
+                  Manage API Keys
+                </Button>
+                <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-full text-lg font-semibold opacity-60">
+                  <FaCog className="mr-2 animate-spin" />
+                  Endpoints Under Development
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                className="text-center"
+              >
+                <p className="text-slate-400 mb-4">Please log in to manage your API keys</p>
+                <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-full text-lg font-semibold opacity-60">
+                  <FaCog className="mr-2 animate-spin" />
+                  Under Development
+                </div>
+              </motion.div>
+            )}
           </motion.div>
 
           {/* Feature Preview Cards */}
@@ -122,35 +192,49 @@ export default function ApiDocsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.7 }}
             >
-              <Card className="bg-slate-800/50 border-slate-700 hover:border-orange-500/50 transition-all duration-300 h-full opacity-60">
+              <Card className={`bg-slate-800/50 border-slate-700 hover:border-orange-500/50 transition-all duration-300 h-full ${!user ? 'opacity-60' : ''}`}>
                 <CardHeader className="text-center">
-                  <div className="mx-auto mb-4 p-3 rounded-full bg-gradient-to-r from-orange-600 to-red-600 w-fit">
+                  <div className={`mx-auto mb-4 p-3 rounded-full bg-gradient-to-r from-orange-600 to-red-600 w-fit ${user ? 'animate-pulse' : ''}`}>
                     <FaLock className="h-8 w-8 text-white" />
                   </div>
-                  <CardTitle className="text-xl text-white">Secure Authentication</CardTitle>
+                  <CardTitle className="text-xl text-white">
+                    {user ? 'API Authentication Ready' : 'Secure Authentication'}
+                  </CardTitle>
                   <CardDescription className="text-slate-400">
-                    JWT-based authentication and API keys
+                    {user ? 'Your account is ready for API access' : 'JWT-based authentication and API keys'}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2 text-slate-300 text-sm">
                     <li className="flex items-center">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full mr-3" />
-                      JWT token authentication
+                      <div className={`w-2 h-2 ${user ? 'bg-green-500' : 'bg-orange-500'} rounded-full mr-3`} />
+                      {user ? 'User authenticated ✓' : 'JWT token authentication'}
+                    </li>
+                    <li className="flex items-center">
+                      <div className={`w-2 h-2 ${user ? 'bg-green-500' : 'bg-orange-500'} rounded-full mr-3`} />
+                      {user ? 'API key generation available ✓' : 'API key management'}
                     </li>
                     <li className="flex items-center">
                       <div className="w-2 h-2 bg-orange-500 rounded-full mr-3" />
-                      API key management
+                      Rate limiting (coming soon)
                     </li>
                     <li className="flex items-center">
                       <div className="w-2 h-2 bg-orange-500 rounded-full mr-3" />
-                      Rate limiting
-                    </li>
-                    <li className="flex items-center">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full mr-3" />
-                      Usage analytics
+                      Usage analytics (coming soon)
                     </li>
                   </ul>
+                  {user && (
+                    <div className="mt-4">
+                      <Button
+                        onClick={() => setShowApiKeys(true)}
+                        size="sm"
+                        className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
+                      >
+                        <FaKey className="mr-2 h-3 w-3" />
+                        Manage Keys
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>
@@ -195,7 +279,7 @@ export default function ApiDocsPage() {
             </motion.div>
           </div>
 
-          {/* Coming Soon Section */}
+          {/* Current Status Section */}
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -205,21 +289,43 @@ export default function ApiDocsPage() {
             <Card className="bg-slate-800/30 border-slate-700 max-w-2xl mx-auto">
               <CardHeader>
                 <CardTitle className="text-2xl text-white flex items-center justify-center">
-                  <FaRocket className="mr-3 text-orange-500" />
-                  Stay Tuned!
+                  {user ? (
+                    <>
+                      <FaKey className="mr-3 text-green-500" />
+                      Ready to Generate API Keys!
+                    </>
+                  ) : (
+                    <>
+                      <FaRocket className="mr-3 text-orange-500" />
+                      Get Started with API Access
+                    </>
+                  )}
                 </CardTitle>
                 <CardDescription className="text-slate-300 text-lg">
-                  We're working hard to bring you comprehensive API integration capabilities. 
-                  Sign up for updates to be the first to know when it launches.
+                  {user ? (
+                    'Your account is set up and ready. Generate your first API key to start building with ProjectKepler.'
+                  ) : (
+                    'Sign in to your account to generate API keys and start integrating with our services.'
+                  )}
                 </CardDescription>
               </CardHeader>
               <CardContent className="pb-8">
-                <Button 
-                  disabled
-                  className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-8 py-3 text-lg opacity-60 cursor-not-allowed"
-                >
-                  Notify Me When Ready
-                </Button>
+                {user ? (
+                  <Button 
+                    onClick={() => setShowApiKeys(true)}
+                    className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-8 py-3 text-lg"
+                  >
+                    <FaKey className="mr-2" />
+                    Generate API Key
+                  </Button>
+                ) : (
+                  <Button 
+                    disabled
+                    className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-8 py-3 text-lg opacity-60 cursor-not-allowed"
+                  >
+                    Sign In Required
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </motion.div>

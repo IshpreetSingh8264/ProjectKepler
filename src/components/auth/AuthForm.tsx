@@ -7,8 +7,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { saveUser, validateLogin, userExists } from '@/lib/localStorage';
-import GoogleLogo from './GoogleLogo';
+import { 
+  signUpWithEmailAndPassword, 
+  signInWithEmailAndPasswordAuth, 
+  signInWithGoogle,
+  sendVerificationEmail,
+  validateEmail,
+  validatePassword
+} from '@/lib/firebaseClient';
+import { createUserProfile } from '@/lib/firestoreUser';
+import { GoogleLogo } from '@/components/auth';
 
 interface AuthFormProps {
   onLoginSuccess: () => void;
@@ -25,6 +33,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onLoginSuccess }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showConfirmField, setShowConfirmField] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Show confirm password field when user starts typing password in signup mode
   useEffect(() => {
@@ -43,18 +52,20 @@ const AuthForm: React.FC<AuthFormProps> = ({ onLoginSuccess }) => {
     const newErrors: { [key: string]: string } = {};
 
     // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email) {
       newErrors.email = 'Email is required';
-    } else if (!emailRegex.test(formData.email)) {
+    } else if (!validateEmail(formData.email)) {
       newErrors.email = 'Please enter a valid email';
     }
 
     // Password validation
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    } else {
+      const passwordValidation = validatePassword(formData.password);
+      if (!passwordValidation.isValid) {
+        newErrors.password = passwordValidation.message || 'Password is invalid';
+      }
     }
 
     // Confirm password validation for signup
@@ -70,48 +81,121 @@ const AuthForm: React.FC<AuthFormProps> = ({ onLoginSuccess }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm() || isLoading) return;
 
-    if (isLogin) {
-      // Handle login
-      if (validateLogin(formData.email, formData.password)) {
+    setIsLoading(true);
+    setErrors({});
+
+    try {
+      if (isLogin) {
+        // Handle login
+        const userCredential = await signInWithEmailAndPasswordAuth(formData.email, formData.password);
+        const user = userCredential.user;
+
+        // Check if email is verified
+        if (!user.emailVerified) {
+          setErrors({ 
+            email: 'Please verify your email before logging in. Check your inbox for the verification link.' 
+          });
+          return;
+        }
+
         onLoginSuccess();
       } else {
-        setErrors({ email: 'Invalid email or password' });
-      }
-    } else {
-      // Handle signup
-      if (userExists(formData.email)) {
-        setErrors({ email: 'User with this email already exists' });
-        return;
-      }
+        // Handle signup
+        const userCredential = await signUpWithEmailAndPassword(formData.email, formData.password);
+        const user = userCredential.user;
 
-      const newUser = {
-        email: formData.email,
-        password: formData.password,
-        profileCompleted: false,
-      };
+        // Create user profile in Firestore
+        await createUserProfile(user);
 
-      saveUser(newUser);
-      onLoginSuccess();
+        // Send email verification
+        await sendVerificationEmail(user);
+        
+        setErrors({ 
+          email: 'Account created successfully! Please check your email and verify your account before logging in.' 
+        });
+        
+        // Switch to login mode after successful signup
+        setTimeout(() => {
+          setIsLogin(true);
+          setFormData({ email: formData.email, password: '', confirmPassword: '' });
+          setErrors({});
+        }, 3000);
+      }
+    } catch (error: any) {
+      console.error('Authentication error:', error);
+      
+      // Handle specific Firebase errors
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          setErrors({ email: 'An account with this email already exists' });
+          break;
+        case 'auth/weak-password':
+          setErrors({ password: 'Password is too weak' });
+          break;
+        case 'auth/user-not-found':
+          setErrors({ email: 'No account found with this email' });
+          break;
+        case 'auth/wrong-password':
+          setErrors({ password: 'Incorrect password' });
+          break;
+        case 'auth/invalid-email':
+          setErrors({ email: 'Invalid email address' });
+          break;
+        case 'auth/user-disabled':
+          setErrors({ email: 'This account has been disabled' });
+          break;
+        default:
+          setErrors({ email: 'An error occurred. Please try again.' });
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleGoogleAuth = () => {
-    // Simulate Google authentication
-    const googleUser = {
-      email: 'user@google.com',
-      password: 'google_auth',
-      profileCompleted: false,
-    };
+  const handleGoogleAuth = async () => {
+    if (isLoading) return;
     
-    saveUser(googleUser);
-    onLoginSuccess();
+    setIsLoading(true);
+    setErrors({});
+
+    try {
+      const userCredential = await signInWithGoogle();
+      const user = userCredential.user;
+
+      // Create user profile in Firestore if it doesn't exist
+      await createUserProfile(user);
+
+      // Google accounts are automatically verified
+      onLoginSuccess();
+    } catch (error: any) {
+      console.error('Google authentication error:', error);
+      
+      // Handle specific Google auth errors
+      switch (error.code) {
+        case 'auth/popup-closed-by-user':
+          setErrors({ email: 'Google sign-in was cancelled' });
+          break;
+        case 'auth/popup-blocked':
+          setErrors({ email: 'Popup was blocked. Please allow popups and try again.' });
+          break;
+        case 'auth/account-exists-with-different-credential':
+          setErrors({ email: 'An account already exists with this email using a different sign-in method' });
+          break;
+        default:
+          setErrors({ email: 'Failed to sign in with Google. Please try again.' });
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const switchMode = () => {
+    if (isLoading) return;
+    
     setIsLogin(!isLogin);
     setFormData({ email: '', password: '', confirmPassword: '' });
     setErrors({});
@@ -257,9 +341,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ onLoginSuccess }) => {
               <div className="space-y-3">
                 <Button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                  disabled={isLoading}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isLogin ? 'Sign In' : 'Create Account'}
+                  {isLoading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
                 </Button>
 
                 <div className="relative">
@@ -275,10 +360,11 @@ const AuthForm: React.FC<AuthFormProps> = ({ onLoginSuccess }) => {
                   type="button"
                   variant="outline"
                   onClick={handleGoogleAuth}
-                  className="w-full bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-300 hover:border-gray-400 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
+                  disabled={isLoading}
+                  className="w-full bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-300 hover:border-gray-400 transition-all duration-200 shadow-sm hover:shadow-md font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <GoogleLogo />
-                  <span className="ml-3">Continue with Google</span>
+                  <span className="ml-3">{isLoading ? 'Signing in...' : 'Continue with Google'}</span>
                 </Button>
               </div>
 
@@ -286,7 +372,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ onLoginSuccess }) => {
                 <button
                   type="button"
                   onClick={switchMode}
-                  className="text-blue-400 hover:text-blue-300 text-sm transition-colors"
+                  disabled={isLoading}
+                  className="text-blue-400 hover:text-blue-300 text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
                 </button>

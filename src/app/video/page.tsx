@@ -1,19 +1,26 @@
-'use client';
+  'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaUpload, FaLink, FaPlay, FaTrash, FaVideo } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Navbar } from '@/components/common';
+import { ProtectedRoute } from '@/components/auth';
 
-const VideoPage = () => {
+const VideoPageContent = () => {
+  const router = useRouter();
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleProfileClick = () => {
+    router.push('/profile');
+  };
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -80,7 +87,7 @@ const VideoPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <Navbar onProfileClick={() => {}} />      <div className="container mx-auto px-4 py-8 pt-24">
+      <Navbar onProfileClick={handleProfileClick} />      <div className="container mx-auto px-4 py-8 pt-24">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -300,6 +307,14 @@ const VideoPage = () => {
         </motion.div>
       </div>
     </div>
+  );
+};
+
+const VideoPage = () => {
+  return (
+    <ProtectedRoute requireAuth={true}>
+      <VideoPageContent />
+    </ProtectedRoute>
   );
 };
 

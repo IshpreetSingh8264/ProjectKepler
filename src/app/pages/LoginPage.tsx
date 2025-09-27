@@ -1,14 +1,14 @@
-// Authentication page wrapper
-'use client';
+// // Authentication page wrapper
+// 'use client';
 
-import { AuthForm } from '@/components/pages/auth';
+// import { AuthForm } from '@/components/pages/auth';
 
-interface LoginPageProps {
-  onLoginSuccess: () => void;
-}
+// interface LoginPageProps {
+//   onLoginSuccess: () => void;
+// }
 
-const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
-  return <AuthForm onLoginSuccess={onLoginSuccess} />;
-};
+// const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
+//   return <AuthForm onLoginSuccess={onLoginSuccess} />;
+// };
 
-export default LoginPage;
+// export default LoginPage;
