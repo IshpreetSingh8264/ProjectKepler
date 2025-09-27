@@ -25,11 +25,12 @@ import ChangePasswordModal from '../modals/ChangePasswordModal';
 interface ProfileEditProps {
   onBack: () => void;
   onLogout: () => void;
+  initialProfile?: UserProfile | null;
 }
 
-const ProfileEdit: React.FC<ProfileEditProps> = ({ onBack, onLogout }) => {
+const ProfileEdit: React.FC<ProfileEditProps> = ({ onBack, onLogout, initialProfile }) => {
   const { user: currentUser } = useAuth();
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(initialProfile || null);
   const [formData, setFormData] = useState({
     username: '',
     displayName: '',
@@ -39,12 +40,26 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onBack, onLogout }) => {
     bio: '',
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!initialProfile);
   const [isSaving, setIsSaving] = useState(false);
   const [showSetPasswordModal, setShowSetPasswordModal] = useState(false);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 
   useEffect(() => {
+    // If we already have initialProfile, populate the form immediately
+    if (initialProfile) {
+      setFormData({
+        username: initialProfile.username || '',
+        displayName: initialProfile.displayName || '',
+        dateOfBirth: initialProfile.dateOfBirth || '',
+        gender: initialProfile.gender || '',
+        address: initialProfile.address || '',
+        bio: initialProfile.bio || '',
+      });
+      setIsLoading(false);
+      return;
+    }
+
     const loadUserProfile = async () => {
       if (!currentUser) {
         setIsLoading(false);
@@ -80,7 +95,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onBack, onLogout }) => {
     };
 
     loadUserProfile();
-  }, [currentUser]);
+  }, [currentUser, initialProfile]);
 
   const validateForm = async () => {
     const newErrors: { [key: string]: string } = {};

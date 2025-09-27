@@ -17,7 +17,7 @@ const Navbar: React.FC<NavbarProps> = ({ onProfileClick }) => {
 
   // Get current page from pathname
   const getCurrentPage = () => {
-    if (pathname === '/') return 'home';
+    if (pathname === '/' || pathname === '/home') return 'home';
     if (pathname === '/image') return 'image';
     if (pathname === '/video') return 'video';
     if (pathname === '/developer') return 'developer';
@@ -38,7 +38,7 @@ const Navbar: React.FC<NavbarProps> = ({ onProfileClick }) => {
   }, []);
 
   const options = [
-    { id: 'home', label: 'Home', icon: FaHome, path: '/' },
+    { id: 'home', label: 'Home', icon: FaHome, path: '/home' },
     { id: 'image', label: 'Image', icon: FaImage, path: '/image' },
     { id: 'video', label: 'Video', icon: FaVideo, path: '/video' },
     { id: 'developer', label: 'Developer', icon: FaCode, path: '/developer' },
