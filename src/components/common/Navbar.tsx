@@ -36,7 +36,7 @@ const Navbar: React.FC<NavbarProps> = ({ onProfileClick }) => {
   }, []);
 
   const options = [
-    { id: 'home', label: 'Command', icon: FaHome, path: '/home', category: 'BRIDGE' },
+     { id: 'home', label: 'Command', icon: FaHome, path: '/home', category: 'BRIDGE' },
     { id: 'image', label: 'Detection', icon: FaEye, path: '/image', category: 'SENSORS' },
     { id: 'video', label: 'Analysis', icon: FaVideo, path: '/video', category: 'SYSTEMS' },
     { id: 'developer', label: 'Control', icon: FaCog, path: '/developer', category: 'TECH' },

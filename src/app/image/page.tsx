@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, Suspense } from 'react';
+import React, { useState, useRef, useCallback, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaUpload, FaLink, FaEye, FaTrash, FaImage, FaCog, FaChartLine, FaRocket, FaShieldAlt, FaDownload, FaShare, FaHistory, FaSpaceShuttle, FaAtom } from 'react-icons/fa';
@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Navbar, LoadingSpinner, LazyWrapper, LazyImage, ProcessingOverlay } from '@/components/common';
 import { ProtectedRoute } from '@/components/auth';
+import { detectionService, DetectionResult, Detection } from '@/lib/detectionService';
 
 const ImagePageContent = () => {
   const router = useRouter();
@@ -16,10 +17,14 @@ const ImagePageContent = () => {
   const [imageUrl, setImageUrl] = useState(''); 
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [detectionResults, setDetectionResults] = useState<any[]>([]);
+  const [detectionResults, setDetectionResults] = useState<DetectionResult[]>([]);
   const [hasResults, setHasResults] = useState(false);
   const [confidence, setConfidence] = useState(0.5);
   const [iouThreshold, setIouThreshold] = useState(0.45);
+  const [modelVariant, setModelVariant] = useState('yolov8n');
+  const [targetObjects, setTargetObjects] = useState(['Fire Extinguisher', 'Space Suit', 'Oxygen Cylinder']);
+  const [currentDetection, setCurrentDetection] = useState<Detection | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleProfileClick = () => {
@@ -75,18 +80,52 @@ const ImagePageContent = () => {
     }
   };
 
-  const handleDetect = () => {
+  const getIconForObject = (name: string) => {
+    switch (name) {
+      case 'Fire Extinguisher': return FaShieldAlt;
+      case 'Space Suit': return FaSpaceShuttle;
+      case 'Oxygen Cylinder': return FaAtom;
+      default: return FaEye;
+    }
+  };
+
+  const handleDetect = async () => {
+    if (!selectedImage) return;
+    
     setIsProcessing(true);
-    // Simulate detection process
-    setTimeout(() => {
+    setHasResults(false);
+    setDetectionResults([]);
+    setError(null);
+    
+    try {
+      const detection = await detectionService.processImageUrl(selectedImage, {
+        confidence,
+        iouThreshold,
+        modelVariant,
+        targetObjects
+      }, (updatedDetection) => {
+        setCurrentDetection(updatedDetection);
+        if (updatedDetection.status === 'completed' && updatedDetection.results) {
+          setDetectionResults(updatedDetection.results);
+          setHasResults(true);
+          setIsProcessing(false);
+        }
+      });
+
+      if (detection.status === 'completed' && detection.results) {
+        setDetectionResults(detection.results);
+        setHasResults(true);
+      } else if (detection.status === 'failed') {
+        setError(detection.error || 'Detection failed');
+      }
+      
+      setCurrentDetection(detection);
+    } catch (error) {
+      console.error('Detection error:', error);
+      setError(error instanceof Error ? error.message : 'Detection failed');
+    } finally {
       setIsProcessing(false);
-      setHasResults(true);
-      setDetectionResults([
-        { name: 'Fire Extinguisher', confidence: 95.8, color: 'red', icon: FaShieldAlt, bbox: [100, 100, 200, 300] },
-        { name: 'Space Suit', confidence: 87.3, color: 'cyan', icon: FaSpaceShuttle, bbox: [300, 50, 150, 400] },
-        { name: 'Oxygen Cylinder', confidence: 92.1, color: 'green', icon: FaAtom, bbox: [500, 200, 100, 250] }
-      ]);
-    }, 3000);
+    }
   };
 
   const clearImage = () => {
@@ -95,6 +134,8 @@ const ImagePageContent = () => {
     setIsProcessing(false);
     setHasResults(false);
     setDetectionResults([]);
+    setCurrentDetection(null);
+    setError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -282,7 +323,11 @@ const ImagePageContent = () => {
                       <label className="block text-xs font-medium text-gray-300 mb-2">
                         Model Variant
                       </label>
-                      <select className="w-full bg-slate-800/50 border border-blue-500/20 text-white text-xs rounded px-2 py-1">
+                      <select 
+                        value={modelVariant}
+                        onChange={(e) => setModelVariant(e.target.value)}
+                        className="w-full bg-slate-800/50 border border-blue-500/20 text-white text-xs rounded px-2 py-1"
+                      >
                         <option value="yolov8n">YOLOv8 Nano (Fast)</option>
                         <option value="yolov8s">YOLOv8 Small</option>
                         <option value="yolov8m">YOLOv8 Medium</option>
@@ -298,7 +343,14 @@ const ImagePageContent = () => {
                           <label key={obj} className="flex items-center">
                             <input
                               type="checkbox"
-                              defaultChecked
+                              checked={targetObjects.includes(obj)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setTargetObjects([...targetObjects, obj]);
+                                } else {
+                                  setTargetObjects(targetObjects.filter(o => o !== obj));
+                                }
+                              }}
                               className="w-3 h-3 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
                             />
                             <span className="ml-2 text-gray-300 text-xs">{obj}</span>
@@ -323,7 +375,7 @@ const ImagePageContent = () => {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400 text-sm">Model</span>
-                  <span className="text-blue-400 font-mono text-sm">YOLOv8n</span>
+                  <span className="text-blue-400 font-mono text-sm">{modelVariant.toUpperCase()}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400 text-sm">Input Size</span>
@@ -464,6 +516,25 @@ const ImagePageContent = () => {
                       </div>
                       <h4 className="text-lg font-medium text-white mb-2">Analyzing Image</h4>
                       <p className="text-gray-400 text-sm">AI model processing in progress...</p>
+                      {currentDetection && (
+                        <p className="text-xs text-blue-400 mt-2">Detection ID: {currentDetection.id}</p>
+                      )}
+                    </div>
+                  ) : error ? (
+                    <div className="text-center py-20">
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center mx-auto mb-4">
+                        <FaTrash className="h-8 w-8 text-white" />
+                      </div>
+                      <h4 className="text-lg font-medium text-red-400 mb-2">Detection Failed</h4>
+                      <p className="text-gray-400 text-sm mb-4">{error}</p>
+                      <Button 
+                        onClick={() => setError(null)}
+                        variant="outline"
+                        size="sm"
+                        className="border-red-500/30 text-red-400 hover:bg-red-500/20"
+                      >
+                        Clear Error
+                      </Button>
                     </div>
                   ) : (
                     <div className="w-full space-y-4">
@@ -484,7 +555,7 @@ const ImagePageContent = () => {
                             <div className="flex items-center justify-between mb-2">
                               <div className="flex items-center">
                                 <div className={`w-8 h-8 rounded-full bg-gradient-to-br from-${result.color}-500 to-${result.color}-600 flex items-center justify-center mr-3`}>
-                                  <result.icon className="h-4 w-4 text-white" />
+                                  {React.createElement(getIconForObject(result.name), { className: "h-4 w-4 text-white" })}
                                 </div>
                                 <span className="font-medium text-white">{result.name}</span>
                               </div>
