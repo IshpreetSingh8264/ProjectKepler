@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import { Navbar, PageTransition, LoadingSpinner, LazyWrapper } from '@/components/common';
 import { useAuth } from '@/lib/authContext';
 import { getUserProfile, UserProfile } from '@/lib/firestoreUser';
+import { signOutUser } from '@/lib/firebaseClient';
+import ProfileEdit from '@/components/profile/ProfileEdit';
 
 // Lazy load components
-const ProfileEdit = lazy(() => import('@/components/profile/ProfileEdit'));
 const ProfileForm = lazy(() => import('@/components/profile/ProfileForm'));
 
 const ProfilePage = () => {
@@ -15,15 +16,18 @@ const ProfilePage = () => {
   const { user, loading } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [showEdit, setShowEdit] = useState(false);
-  const [profileLoading, setProfileLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false); // Start as false
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     const loadUserProfile = async () => {
       if (!user) {
         setProfileLoading(false);
+        setInitialized(true);
         return;
       }
 
+      setProfileLoading(true);
       try {
         const profile = await getUserProfile(user.uid);
         setUserProfile(profile);
@@ -35,19 +39,34 @@ const ProfilePage = () => {
         console.error('Error loading user profile:', error);
       } finally {
         setProfileLoading(false);
+        setInitialized(true);
       }
     };
 
-    if (!loading) {
+    // Only load when auth is complete and we haven't initialized yet
+    if (!loading && !initialized) {
       loadUserProfile();
     }
-  }, [user, loading]);
+  }, [user, loading, initialized]);
+
+  // Safety timeout to prevent infinite loading
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!initialized) {
+        console.warn('Profile initialization timeout - forcing completion');
+        setProfileLoading(false);
+        setInitialized(true);
+      }
+    }, 5000);
+
+    return () => clearTimeout(timeout);
+  }, [initialized]);
 
   const handleProfileClick = () => {
     // Already on profile page, toggle edit mode
-    if (userProfile) {
-      setShowEdit(!showEdit);
-    }
+    // if (userProfile) {
+    //   setShowEdit(!showEdit);
+    // }
   };
 
   const handleProfileComplete = () => {
@@ -74,12 +93,27 @@ const ProfilePage = () => {
     router.push('/');
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOutUser();
+      router.push('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   if (loading || profileLoading) {
     return (
-      <PageTransition pageKey="profile">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
         <LoadingSpinner message="Loading your profile..." />
-      </PageTransition>
+      </div>
     );
+  }
+
+  // If no user after auth is complete, redirect
+  if (!user && initialized) {
+    router.push('/');
+    return null;
   }
 
   return (
@@ -97,26 +131,31 @@ const ProfilePage = () => {
               </Suspense>
             </LazyWrapper>
           ) : showEdit ? (
-            // Profile exists and editing, show ProfileEdit
-            <LazyWrapper>
-              <Suspense fallback={<LoadingSpinner message="Loading editor..." />}>
-                <ProfileEdit 
-                  onBack={handleBackFromEdit}
-                  onLogout={handleLogout}
-                />
-              </Suspense>
-            </LazyWrapper>
+            // Profile exists and editing, show ProfileEdit (no lazy wrapper needed since we have data)
+            <ProfileEdit 
+              onBack={handleBackFromEdit}
+              onLogout={handleLogout}
+              initialProfile={userProfile}
+            />
           ) : (
             // Profile exists and viewing, show profile info
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-4xl mx-auto">{/* Profile content remains the same */}
               <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-white">My Profile</h1>
-                <button
-                  onClick={() => setShowEdit(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-                >
-                  Edit Profile
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowEdit(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    Edit Profile
+                  </button>
+                  <button
+                    onClick={handleSignOut}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    Sign Out
+                  </button>
+                </div>
               </div>
               
               <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-lg p-8">
