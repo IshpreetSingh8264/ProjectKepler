@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Navbar, PageTransition, LoadingSpinner, LazyWrapper } from '@/components/common';
 import { useAuth } from '@/lib/authContext';
 import { UserProfile } from '@/lib/firestoreUser';
+import { ProfileEdit } from '@/components/profile';
 
 // Lazy load components
 const ProfileForm = lazy(() => import('@/components/profile/ProfileForm'));
@@ -46,7 +47,7 @@ const ProfilePage = () => {
   }
 
   // If no user after auth is complete, redirect
-  if (!user && initialized) {
+  if (!user && !loading) {
     router.push('/');
     return null;
   }
@@ -67,7 +68,7 @@ const ProfilePage = () => {
             </LazyWrapper>
           ) : showEdit ? (
             // Profile exists and editing, show ProfileEdit (no lazy wrapper needed since we have data)
-            <ProfileEdit 
+            <ProfileEdit
               onBack={handleBackFromEdit}
               onLogout={handleLogout}
               initialProfile={userProfile}
@@ -85,7 +86,7 @@ const ProfilePage = () => {
                     Edit Profile
                   </button>
                   <button
-                    onClick={handleSignOut}
+                    onClick={handleLogout}
                     className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
                   >
                     Sign Out
