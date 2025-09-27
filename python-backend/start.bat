@@ -32,18 +32,43 @@ if errorlevel 1 (
     exit /b 1
 )
 
+REM Check for YOLO models
+echo 🎯 Checking for YOLO models...
+if not exist "models" (
+    echo 📁 Creating models directory...
+    mkdir models
+)
+
+REM Check for ONNX files
+dir /b models\*.onnx >nul 2>&1
+if errorlevel 1 (
+    echo ⚠️  No ONNX models found in models\ directory!
+    echo 🎯 Please add your YOLO ONNX models to the 'models\' directory
+    echo 📝 Then update MODEL_PATHS in model_loader.py
+    echo.
+) else (
+    echo ✅ Found ONNX models in models\ directory
+    echo 📋 Available models:
+    dir /b models\*.onnx
+)
+
 REM Check if .env file exists
 if not exist ".env" (
     echo ⚠️  .env file not found. Copying from .env.example...
-    copy .env.example .env
-    echo 📝 Please edit .env file with your Firebase configuration before running in production mode.
+    if exist ".env.example" (
+        copy .env.example .env
+    ) else (
+        echo 📝 Please create .env file with your configuration.
+    )
 )
 
 REM Start the server
 echo.
-echo 🔥 Starting FastAPI server...
-echo API will be available at: http://localhost:8000
-echo API Documentation: http://localhost:8000/docs
+echo 🔥 Starting FastAPI server with YOLO Ensemble...
+echo 🌐 API will be available at: http://localhost:8000
+echo 📚 API Documentation: http://localhost:8000/docs
+echo 🎯 YOLO Endpoint: http://localhost:8000/api/v1/yolo/predict
+echo 📊 Status Check: http://localhost:8000/api/v1/status
 echo Press Ctrl+C to stop the server
 echo.
 

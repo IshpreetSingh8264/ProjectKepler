@@ -14,7 +14,7 @@ load_dotenv()
 
 # Import our modules
 from routes import setup_routes
-from model_loader import load_custom_model
+from model_loader import load_yolo_ensemble
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -47,12 +47,12 @@ async def startup_event():
     """Initialize the application"""
     logger.info("Starting ProjectKepler ML API...")
     
-    # Try to load custom model
-    model = load_custom_model()
-    if model:
-        logger.info("✅ Application startup complete - Custom model loaded")
+    # Try to load YOLO ensemble
+    success = load_yolo_ensemble()
+    if success:
+        logger.info("✅ Application startup complete - YOLO Ensemble loaded")
     else:
-        logger.warning("⚠️ Application started but no custom model found")
+        logger.warning("⚠️ Application started but no YOLO models found")
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -63,12 +63,12 @@ async def shutdown_event():
 @app.get("/api/v1/status")
 async def get_api_status():
     """Get API status and configuration"""
-    from model_loader import get_model_status
+    from model_loader import get_ensemble_status
     
     return {
         "api_version": "1.0.0",
         "environment": "development" if os.getenv('DEVELOPMENT_MODE', 'false').lower() == 'true' else "production",
-        "model_status": get_model_status(),
+        "ensemble_status": get_ensemble_status(),
         "cors_origins": ["http://localhost:3000", "http://localhost:3001"]
     }
 

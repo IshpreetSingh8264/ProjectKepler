@@ -10,7 +10,8 @@ from functions import (
     model_status_function,
     predict_function,
     image_predict_function,
-    video_analyze_function
+    video_analyze_function,
+    yolo_ensemble_predict_function
 )
 
 def setup_routes(app: FastAPI):
@@ -27,5 +28,6 @@ def setup_routes(app: FastAPI):
     # API v1 routes
     app.post("/api/v1/image/predict")(image_predict_function)
     app.post("/api/v1/video/analyze")(video_analyze_function)
+    app.post("/api/v1/yolo/predict")(yolo_ensemble_predict_function)
     
     return app
