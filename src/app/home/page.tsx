@@ -1,14 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { FaRocket, FaImage, FaVideo, FaCode } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Navbar } from '@/components/common';
+import { Navbar, LazyWrapper, LoadingSpinner } from '@/components/common';
 import { ProtectedRoute } from '@/components/auth';
 import { useAuth } from '@/lib/authContext';
+
+// Lazy load components
+const FloatingParticles = lazy(() => import('@/components/common/FloatingParticles'));
 
 const HomeContent = () => {
   const router = useRouter();

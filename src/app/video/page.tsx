@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaUpload, FaLink, FaPlay, FaTrash, FaVideo } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Navbar } from '@/components/common';
+import { Navbar, LoadingSpinner, LazyWrapper } from '@/components/common';
 import { ProtectedRoute } from '@/components/auth';
 
 const VideoPageContent = () => {
@@ -206,34 +206,37 @@ const VideoPageContent = () => {
                       </div>
                       
                       <div className="space-y-6">
-                        <div className="relative rounded-lg overflow-hidden bg-slate-900/50">
-                          <video
-                            src={selectedVideo}
-                            controls
-                            className="w-full h-64"
-                          />
-                        </div>
+                        <LazyWrapper delay={0.1}>
+                          <div className="relative rounded-lg overflow-hidden bg-slate-900/50">
+                            <video
+                              src={selectedVideo}
+                              controls
+                              className="w-full h-64"
+                              preload="metadata"
+                            />
+                          </div>
 
-                        <div className="flex justify-center">
-                          <Button
-                            onClick={handleProcess}
-                            disabled={isProcessing}
-                            className="bg-green-600 hover:bg-green-700 px-8 py-3 text-lg"
-                            size="lg"
-                          >
-                            {isProcessing ? (
-                              <>
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3" />
-                                Processing...
-                              </>
-                            ) : (
-                              <>
-                                <FaPlay className="mr-3 h-5 w-5" />
-                                Process Video
-                              </>
-                            )}
-                          </Button>
-                        </div>
+                          <div className="flex justify-center">
+                            <Button
+                              onClick={handleProcess}
+                              disabled={isProcessing}
+                              className="bg-green-600 hover:bg-green-700 px-8 py-3 text-lg"
+                              size="lg"
+                            >
+                              {isProcessing ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3" />
+                                  Processing...
+                                </>
+                              ) : (
+                                <>
+                                  <FaPlay className="mr-3 h-5 w-5" />
+                                  Process Video
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </LazyWrapper>
                       </div>
                     </div>
                   </Card>

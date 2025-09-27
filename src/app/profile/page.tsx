@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
-import { Navbar } from '@/components/common';
-import { ProfileEdit, ProfileForm } from '@/components/profile';
-import { PageTransition, LoadingSpinner } from '@/components/common';
+import { Navbar, PageTransition, LoadingSpinner, LazyWrapper } from '@/components/common';
 import { useAuth } from '@/lib/authContext';
 import { getUserProfile, UserProfile } from '@/lib/firestoreUser';
+
+// Lazy load components
+const ProfileEdit = lazy(() => import('@/components/profile/ProfileEdit'));
+const ProfileForm = lazy(() => import('@/components/profile/ProfileForm'));
 
 const ProfilePage = () => {
   const router = useRouter();
@@ -89,13 +91,21 @@ const ProfilePage = () => {
         <div className={!showEdit ? "container mx-auto px-4 py-8 pt-24" : ""}>
           {!userProfile ? (
             // No profile exists, show ProfileForm
-            <ProfileForm onComplete={handleProfileComplete} />
+            <LazyWrapper>
+              <Suspense fallback={<LoadingSpinner message="Loading form..." />}>
+                <ProfileForm onComplete={handleProfileComplete} />
+              </Suspense>
+            </LazyWrapper>
           ) : showEdit ? (
             // Profile exists and editing, show ProfileEdit
-            <ProfileEdit 
-              onBack={handleBackFromEdit}
-              onLogout={handleLogout}
-            />
+            <LazyWrapper>
+              <Suspense fallback={<LoadingSpinner message="Loading editor..." />}>
+                <ProfileEdit 
+                  onBack={handleBackFromEdit}
+                  onLogout={handleLogout}
+                />
+              </Suspense>
+            </LazyWrapper>
           ) : (
             // Profile exists and viewing, show profile info
             <div className="max-w-4xl mx-auto">

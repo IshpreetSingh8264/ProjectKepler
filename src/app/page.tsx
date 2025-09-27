@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
-import { LoadingSpinner } from '@/components/common';
-import { AuthForm } from '@/components/auth';
+import { LoadingSpinner, LazyWrapper } from '@/components/common';
 import { useAuth } from '@/lib/authContext';
+
+// Lazy load AuthForm
+const AuthForm = lazy(() => import('@/components/auth/AuthForm'));
 
 type AppState = 'auth' | 'profile' | 'home' | 'profile-edit';
 
@@ -31,7 +33,15 @@ export default function App() {
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <AuthForm onLoginSuccess={handleLoginSuccess} />
+        <LazyWrapper>
+          <Suspense fallback={
+            <div className="flex items-center justify-center min-h-screen">
+              <LoadingSpinner />
+            </div>
+          }>
+            <AuthForm onLoginSuccess={handleLoginSuccess} />
+          </Suspense>
+        </LazyWrapper>
       </div>
     );
   }

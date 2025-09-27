@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { FaKey, FaLock } from 'react-icons/fa';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Navbar } from '@/components/common';
-import { ApiKeysManager } from '@/components/modals';
+import { Navbar, LazyWrapper, LoadingSpinner } from '@/components/common';
 import { useAuth } from '@/lib/authContext';
+
+// Lazy load ApiKeysManager
+const ApiKeysManager = lazy(() => import('@/components/modals/ApiKeysManager'));
 
 export default function ApiDocsPage() {
   const { user } = useAuth();
@@ -74,7 +76,11 @@ export default function ApiDocsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
             >
-              <ApiKeysManager />
+              <LazyWrapper>
+                <Suspense fallback={<LoadingSpinner message="Loading API management..." />}>
+                  <ApiKeysManager />
+                </Suspense>
+              </LazyWrapper>
             </motion.div>
           ) : (
             <motion.div
