@@ -70,11 +70,14 @@ const VideoPageContent = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+    <div className="min-h-screen space-station-bg relative overflow-hidden">
+      {/* Space Grid Background */}
+      <div className="absolute inset-0 space-grid opacity-20"></div>
+      
       {/* Animated Background Elements */}
       <div className="absolute inset-0">
         <motion.div
-          className="absolute top-20 left-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl"
+          className="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.6, 0.3],
@@ -86,7 +89,7 @@ const VideoPageContent = () => {
           }}
         />
         <motion.div
-          className="absolute bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"
+          className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
           animate={{
             scale: [1.2, 1, 1.2],
             opacity: [0.4, 0.2, 0.4],
@@ -133,9 +136,12 @@ const VideoPageContent = () => {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="text-5xl md:text-7xl font-bold text-white mb-6"
             >
-              Video Processor
-              <span className="block text-3xl md:text-4xl bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mt-2">
-                Coming Soon
+              <span className="block text-2xl md:text-3xl text-gray-400 font-normal mb-2">
+                ANALYSIS MODULE
+              </span>
+              Video Analysis
+              <span className="block text-3xl md:text-4xl bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mt-2">
+                In Development
               </span>
             </motion.h1>
 
@@ -147,6 +153,11 @@ const VideoPageContent = () => {
             >
               We're building something incredible! Our AI-powered video processing platform 
               will revolutionize how you analyze and enhance your video content.
+              <br />
+              <span className="text-sm text-purple-400/60 italic mt-3 block">
+                "Frame by frame, the future unfolds..." 
+                <span className="text-xs text-gray-600 ml-2">// Houston, we have no problems here</span>
+              </span>
             </motion.p>
 
             {/* Development Status Badge */}

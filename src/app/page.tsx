@@ -32,7 +32,10 @@ export default function App() {
   // Show login form if not authenticated
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="min-h-screen space-station-bg relative overflow-hidden">
+        {/* Space Grid Background */}
+        <div className="absolute inset-0 space-grid opacity-20"></div>
+        
         <LazyWrapper>
           <Suspense fallback={
             <div className="flex items-center justify-center min-h-screen">

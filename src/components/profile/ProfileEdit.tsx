@@ -191,13 +191,20 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onBack, onLogout, initialProf
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen space-station-bg">
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+        <div className="absolute top-3/4 right-1/3 w-1 h-1 bg-blue-300 rounded-full animate-ping"></div>
+        <div className="absolute bottom-1/4 left-1/2 w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
+        <div className="absolute top-1/2 right-1/4 w-1 h-1 bg-cyan-300 rounded-full animate-ping"></div>
+      </div>
+      
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="bg-slate-900/95 backdrop-blur-sm border-b border-slate-700"
+        transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
+        className="bg-slate-900/95 backdrop-blur-xl border-b border-cyan-500/20 relative z-10"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -205,36 +212,36 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onBack, onLogout, initialProf
               <Button
                 variant="ghost"
                 onClick={onBack}
-                className="text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                className="text-cyan-300/80 hover:text-cyan-200 hover:bg-slate-800/60 transition-all duration-300 transform hover:scale-105"
               >
                 <FaArrowLeft className="h-4 w-4 mr-2" />
-                Back
+                Mission Control
               </Button>
-              <h1 className="text-xl font-semibold text-white">Edit Profile</h1>
+              <h1 className="text-xl font-light text-white tracking-wide space-glow-subtle">Astronaut Profile</h1>
             </div>
             <Button
               variant="ghost"
               onClick={handleLogout}
-              className="text-red-400 hover:text-red-300 hover:bg-slate-800 transition-colors"
+              className="text-red-400/80 hover:text-red-300 hover:bg-slate-800/60 transition-all duration-300 transform hover:scale-105"
             >
               <FaSignOutAlt className="h-4 w-4 mr-2" />
-              Logout
+              End Session
             </Button>
           </div>
         </div>
       </motion.div>
 
-      <div className="max-w-2xl mx-auto px-4 py-12">
+      <div className="max-w-2xl mx-auto px-4 py-12 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
         >
-          <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-2xl text-white">Profile Information</CardTitle>
-              <CardDescription className="text-slate-400">
-                Update your personal information and preferences
+          <Card className="space-card border-cyan-500/20 backdrop-blur-xl bg-slate-900/90 shadow-2xl shadow-cyan-500/10">
+            <CardHeader className="pb-8">
+              <CardTitle className="text-2xl text-white font-light tracking-wide space-glow-subtle">Mission Profile Configuration</CardTitle>
+              <CardDescription className="text-cyan-300/70 text-base font-light">
+                Update your astronaut credentials and mission parameters
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -243,45 +250,45 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onBack, onLogout, initialProf
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-red-500/10 border border-red-500/20 rounded-lg p-3"
+                    className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 backdrop-blur-sm"
                   >
-                    <p className="text-red-400 text-sm">{errors.general}</p>
+                    <p className="text-red-400 text-sm font-light">{errors.general}</p>
                   </motion.div>
                 )}
 
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 }}
+                  transition={{ duration: 0.6, delay: 0.1 }}
                   className="space-y-2"
                 >
-                  <Label htmlFor="email" className="text-slate-200">Email</Label>
+                  <Label htmlFor="email" className="text-cyan-300/90 font-medium tracking-wide">Mission Contact</Label>
                   <Input
                     id="email"
                     type="email"
                     value={currentUser?.email || ''}
                     disabled
-                    className="bg-slate-700/30 border-slate-600 text-slate-400"
+                    className="bg-slate-800/40 border-cyan-500/20 text-cyan-300/60 cursor-not-allowed"
                   />
-                  <p className="text-xs text-slate-500">Email cannot be changed</p>
+                  <p className="text-xs text-cyan-400/50 font-light">Primary contact cannot be modified</p>
                 </motion.div>
 
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
                   className="space-y-2"
                 >
-                  <Label htmlFor="username" className="text-slate-200">
-                    Username <span className="text-red-400">*</span>
+                  <Label htmlFor="username" className="text-cyan-300/90 font-medium tracking-wide">
+                    Callsign <span className="text-red-400">*</span>
                   </Label>
                   <Input
                     id="username"
                     type="text"
-                    placeholder="Enter your username"
+                    placeholder="Enter your astronaut callsign"
                     value={formData.username}
                     onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
-                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-blue-500"
+                    className="bg-slate-800/60 border-cyan-500/30 text-white placeholder:text-cyan-400/50 focus:border-cyan-400 focus:ring-cyan-400/20 transition-all duration-300"
                   />
                   {errors.username && (
                     <motion.p
@@ -297,19 +304,19 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onBack, onLogout, initialProf
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.25 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
                   className="space-y-2"
                 >
-                  <Label htmlFor="displayName" className="text-slate-200">
-                    Display Name <span className="text-red-400">*</span>
+                  <Label htmlFor="displayName" className="text-cyan-300/90 font-medium tracking-wide">
+                    Full Name <span className="text-red-400">*</span>
                   </Label>
                   <Input
                     id="displayName"
                     type="text"
-                    placeholder="Enter your display name"
+                    placeholder="Enter your full astronaut name"
                     value={formData.displayName}
                     onChange={(e) => setFormData(prev => ({ ...prev, displayName: e.target.value }))}
-                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-blue-500"
+                    className="bg-slate-800/60 border-cyan-500/30 text-white placeholder:text-cyan-400/50 focus:border-cyan-400 focus:ring-cyan-400/20 transition-all duration-300"
                   />
                   {errors.displayName && (
                     <motion.p
@@ -325,18 +332,18 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onBack, onLogout, initialProf
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
+                  transition={{ duration: 0.6, delay: 0.4 }}
                   className="space-y-2"
                 >
-                  <Label htmlFor="dateOfBirth" className="text-slate-200">
-                    Date of Birth <span className="text-red-400">*</span>
+                  <Label htmlFor="dateOfBirth" className="text-cyan-300/90 font-medium tracking-wide">
+                    Mission Birth Date <span className="text-red-400">*</span>
                   </Label>
                   <Input
                     id="dateOfBirth"
                     type="date"
                     value={formData.dateOfBirth}
                     onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
-                    className="bg-slate-700/50 border-slate-600 text-white focus:border-blue-500"
+                    className="bg-slate-800/60 border-cyan-500/30 text-white focus:border-cyan-400 focus:ring-cyan-400/20 transition-all duration-300"
                   />
                   {errors.dateOfBirth && (
                     <motion.p
@@ -352,11 +359,11 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onBack, onLogout, initialProf
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 }}
+                  transition={{ duration: 0.6, delay: 0.5 }}
                   className="space-y-3"
                 >
-                  <Label className="text-slate-200">
-                    Gender <span className="text-red-400">*</span>
+                  <Label className="text-cyan-300/90 font-medium tracking-wide">
+                    Crew Classification <span className="text-red-400">*</span>
                   </Label>
                   <RadioGroup
                     value={formData.gender}
@@ -364,16 +371,16 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onBack, onLogout, initialProf
                     className="flex space-x-6"
                   >
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="male" id="male" className="border-slate-600" />
-                      <Label htmlFor="male" className="text-slate-200">Male</Label>
+                      <RadioGroupItem value="male" id="male" className="border-cyan-500/40 text-cyan-400" />
+                      <Label htmlFor="male" className="text-cyan-300/80 font-light">Male</Label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="female" id="female" className="border-slate-600" />
-                      <Label htmlFor="female" className="text-slate-200">Female</Label>
+                      <RadioGroupItem value="female" id="female" className="border-cyan-500/40 text-cyan-400" />
+                      <Label htmlFor="female" className="text-cyan-300/80 font-light">Female</Label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="other" id="other" className="border-slate-600" />
-                      <Label htmlFor="other" className="text-slate-200">Other</Label>
+                      <RadioGroupItem value="other" id="other" className="border-cyan-500/40 text-cyan-400" />
+                      <Label htmlFor="other" className="text-cyan-300/80 font-light">Other</Label>
                     </div>
                   </RadioGroup>
                   {errors.gender && (
@@ -390,18 +397,18 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onBack, onLogout, initialProf
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.5 }}
+                  transition={{ duration: 0.6, delay: 0.6 }}
                   className="space-y-2"
                 >
-                  <Label htmlFor="address" className="text-slate-200">
-                    Address <span className="text-red-400">*</span>
+                  <Label htmlFor="address" className="text-cyan-300/90 font-medium tracking-wide">
+                    Mission Base Location <span className="text-red-400">*</span>
                   </Label>
                   <Textarea
                     id="address"
-                    placeholder="Enter your address"
+                    placeholder="Enter your base coordinates and location..."
                     value={formData.address}
                     onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-blue-500 min-h-[100px]"
+                    className="bg-slate-800/60 border-cyan-500/30 text-white placeholder:text-cyan-400/50 focus:border-cyan-400 focus:ring-cyan-400/20 transition-all duration-300 min-h-[100px]"
                   />
                   {errors.address && (
                     <motion.p
@@ -417,78 +424,78 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onBack, onLogout, initialProf
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.6 }}
+                  transition={{ duration: 0.6, delay: 0.7 }}
                   className="space-y-2"
                 >
-                  <Label htmlFor="bio" className="text-slate-200">Bio (Optional)</Label>
+                  <Label htmlFor="bio" className="text-cyan-300/90 font-medium tracking-wide">Mission Brief (Optional)</Label>
                   <Textarea
                     id="bio"
-                    placeholder="Tell us about yourself..."
+                    placeholder="Document your astronaut experience and mission objectives..."
                     value={formData.bio}
                     onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
-                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-blue-500 min-h-[120px]"
+                    className="bg-slate-800/60 border-cyan-500/30 text-white placeholder:text-cyan-400/50 focus:border-cyan-400 focus:ring-cyan-400/20 transition-all duration-300 min-h-[120px]"
                   />
                 </motion.div>
 
-                {/* Password Management Section */}
+                {/* Security Protocols Section */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.65 }}
-                  className="border-t border-slate-600 pt-6 space-y-3"
+                  transition={{ duration: 0.6, delay: 0.8 }}
+                  className="border-t border-cyan-500/20 pt-6 space-y-3"
                 >
-                  <h3 className="text-lg font-semibold text-white mb-4">Password Management</h3>
+                  <h3 className="text-lg font-light text-white mb-4 tracking-wide space-glow-subtle">Security Protocols</h3>
                   {userProfile?.hasPassword ? (
                     <Button
                       type="button"
                       onClick={() => setShowChangePasswordModal(true)}
                       variant="outline"
-                      className="w-full bg-slate-700 border-slate-600 text-white hover:bg-slate-600"
+                      className="w-full bg-slate-800/60 border-cyan-500/30 text-cyan-300 hover:bg-slate-700/60 hover:border-cyan-400/50 transition-all duration-300 transform hover:scale-[1.02]"
                     >
                       <FaKey className="mr-2 h-4 w-4" />
-                      Change Password
+                      Update Access Codes
                     </Button>
                   ) : (
                     <div className="space-y-2">
-                      <p className="text-sm text-slate-400">
-                        You signed up with Google. Set a password to enable password reset functionality.
+                      <p className="text-sm text-cyan-400/70 font-light">
+                        External authentication detected. Establish backup access credentials for enhanced security.
                       </p>
                       <Button
                         type="button"
                         onClick={() => setShowSetPasswordModal(true)}
                         variant="outline"
-                        className="w-full bg-slate-700 border-slate-600 text-white hover:bg-slate-600"
+                        className="w-full bg-slate-800/60 border-cyan-500/30 text-cyan-300 hover:bg-slate-700/60 hover:border-cyan-400/50 transition-all duration-300 transform hover:scale-[1.02]"
                       >
                         <FaLock className="mr-2 h-4 w-4" />
-                        Set Password
+                        Initialize Backup Access
                       </Button>
                     </div>
                   )}
                 </motion.div>
 
-                {/* Actions Section */}
+                {/* Mission Controls Section */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.7 }}
-                  className="space-y-3"
+                  transition={{ duration: 0.6, delay: 0.9 }}
+                  className="space-y-3 pt-2"
                 >
                   <Button
                     type="button"
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50"
+                    className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-medium tracking-wide transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:transform-none space-glow-subtle"
                   >
                     {isSaving ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                        Saving...
-                      </>
+                      <div className="flex items-center justify-center space-x-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Updating Profile...</span>
+                      </div>
                     ) : (
-                      <>
-                        <FaSave className="mr-2 h-4 w-4" />
-                        Save Changes
-                      </>
+                      <div className="flex items-center justify-center space-x-2">
+                        <FaSave className="h-4 w-4" />
+                        <span>Confirm Mission Updates</span>
+                      </div>
                     )}
                   </Button>
 

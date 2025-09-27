@@ -41,9 +41,9 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language, title }) => {
   };
 
   return (
-    <div className="bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+    <div className="bg-slate-900 rounded-lg overflow-hidden border border-blue-500/20">
       {title && (
-        <div className="bg-slate-800 px-4 py-2 text-sm text-slate-300 font-medium border-b border-slate-700">
+        <div className="bg-slate-800 px-4 py-2 text-sm text-gray-300 font-medium border-b border-blue-500/20">
           {title}
         </div>
       )}
@@ -625,10 +625,13 @@ const getAuthToken = async () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen space-station-bg relative overflow-hidden">
+      {/* Space Grid Background */}
+      <div className="absolute inset-0 space-grid opacity-20"></div>
+      
       <Navbar onProfileClick={handleProfileClick} />
       
-      <div className="pt-20 pb-8 px-4 sm:px-6 lg:px-8">
+      <div className="pt-20 pb-8 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
           {/* Hero Section */}
           <motion.div
@@ -647,7 +650,7 @@ const getAuthToken = async () => {
                 stiffness: 260,
                 damping: 20
               }}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 rounded-full shadow-lg w-20 h-20 flex items-center justify-center mx-auto mb-6"
+              className="space-gradient-primary p-6 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6 space-glow"
             >
               <FaCode className="h-10 w-10 text-white" />
             </motion.div>
@@ -656,11 +659,14 @@ const getAuthToken = async () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-4xl sm:text-5xl font-bold text-white mb-4"
+              className="text-5xl sm:text-6xl font-bold text-white mb-6"
             >
-              Developer{' '}
-              <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent">
-                Documentation
+              <span className="block text-2xl md:text-3xl text-gray-400 font-normal mb-2">
+                CONTROL MODULE
+              </span>
+              Mission Control{' '}
+              <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-500 bg-clip-text text-transparent space-text-glow">
+                API
               </span>
             </motion.h1>
             
@@ -668,10 +674,15 @@ const getAuthToken = async () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-lg text-slate-300 max-w-3xl mx-auto mb-8"
+              className="text-xl text-gray-300 max-w-4xl mx-auto mb-8 leading-relaxed"
             >
-              Complete API documentation for ProjectKepler's AI-powered image and video processing platform. 
-              Get started with our RESTful API and integrate powerful AI capabilities into your applications.
+              Advanced API interface for space station object detection systems. 
+              Access powerful AI models for critical safety equipment identification and real-time analysis capabilities.
+              <br />
+              <span className="text-sm text-cyan-400/60 italic mt-3 block">
+                "Code is poetry, APIs are the verses..." 
+                <span className="text-xs text-gray-600 ml-2">// There are only 10 types of people in this universe</span>
+              </span>
             </motion.p>
 
             <motion.div

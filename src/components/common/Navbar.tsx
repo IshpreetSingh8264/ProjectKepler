@@ -2,8 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FaImage, FaVideo, FaCode, FaUser, FaHome } from 'react-icons/fa';
+import { motion } from 'framer-motion';
+import { 
+  FaImage, 
+  FaVideo, 
+  FaCode, 
+  FaUser, 
+  FaHome, 
+  FaSpaceShuttle,
+  FaEye,
+  FaCog,
+  FaRocket
+} from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 
 interface NavbarProps {
@@ -15,33 +25,21 @@ const Navbar: React.FC<NavbarProps> = ({ onProfileClick }) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Get current page from pathname
-  const getCurrentPage = () => {
-    if (pathname === '/' || pathname === '/home') return 'home';
-    if (pathname === '/image') return 'image';
-    if (pathname === '/video') return 'video';
-    if (pathname === '/developer') return 'developer';
-    return 'home';
-  };
-
-  const selectedOption = getCurrentPage();
-
-  // Handle scroll events
+  // Simple scroll handling
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      setIsScrolled(scrollPosition > 30); // Reduced threshold for earlier trigger
+      setIsScrolled(window.scrollY > 30);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const options = [
-    { id: 'home', label: 'Home', icon: FaHome, path: '/home' },
-    { id: 'image', label: 'Image', icon: FaImage, path: '/image' },
-    { id: 'video', label: 'Video', icon: FaVideo, path: '/video' },
-    { id: 'developer', label: 'Developer', icon: FaCode, path: '/developer' },
+    { id: 'home', label: 'Command', icon: FaHome, path: '/home', category: 'BRIDGE' },
+    { id: 'image', label: 'Detection', icon: FaEye, path: '/image', category: 'SENSORS' },
+    { id: 'video', label: 'Analysis', icon: FaVideo, path: '/video', category: 'SYSTEMS' },
+    { id: 'developer', label: 'Control', icon: FaCog, path: '/developer', category: 'TECH' },
   ];
 
   const handleNavigation = (path: string) => {
@@ -51,152 +49,76 @@ const Navbar: React.FC<NavbarProps> = ({ onProfileClick }) => {
   return (
     <nav
       className={`
-        fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out
+        w-full transition-all duration-300 ease-out
         ${isScrolled 
-          ? 'bg-slate-900/95 backdrop-blur-md border-b border-slate-700 shadow-lg w-full' 
-          : 'bg-transparent max-w-7xl mx-auto'
+          ? 'bg-slate-900/95 backdrop-blur-md border-b border-blue-500/20 shadow-lg' 
+          : 'bg-slate-900/80 backdrop-blur-sm'
         }
       `}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 10000,
+        width: '100%'
+      }}
     >
-      <div className={`
-        transition-all duration-500 ease-out px-4 sm:px-6 lg:px-8
-        ${isScrolled ? 'max-w-none' : 'max-w-7xl mx-auto'}
-      `}>
-        <div className={`
-          flex items-center transition-all duration-500 ease-out
-          ${isScrolled ? 'h-14 justify-between' : 'h-16 justify-between'}
-        `}>
+      <div className="px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center h-16 justify-between">
           
-          {/* Left side - Options (when scrolled) or Logo (when not scrolled) */}
-          <div className="flex items-center">
-            {isScrolled ? (
-              <motion.div
-                key="scrolled-options"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className="flex space-x-1"
-              >
-                {options.map((option, index) => {
-                  const Icon = option.icon;
-                  return (
-                    <motion.div
-                      key={`left-${option.id}`}
-                      layoutId={`option-${option.id}`}
-                      transition={{ 
-                        duration: 0.5, 
-                        delay: index * 0.05,
-                        ease: [0.25, 0.46, 0.45, 0.94]
-                      }}
-                    >
-                      <Button
-                        variant={pathname === option.path ? 'default' : 'ghost'}
-                        onClick={() => handleNavigation(option.path)}
-                        size="sm"
-                        className={`
-                          flex items-center space-x-1 transition-all duration-300 text-xs
-                          ${pathname === option.path 
-                            ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                            : 'text-slate-300 hover:text-white hover:bg-slate-800'
-                          }
-                        `}
-                      >
-                        <Icon className="h-3 w-3" />
-                        <span className="hidden sm:inline">{option.label}</span>
-                      </Button>
-                    </motion.div>
-                  );
-                })}
-              </motion.div>
-            ) : (
-              <motion.div
-                key="normal-logo"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ 
-                  duration: 0.2, 
-                  ease: [0.25, 0.46, 0.45, 0.94]
-                }}
-                className="flex items-center"
-              >
-                <h1 className="text-2xl font-bold text-white">ProjectKepler</h1>
-              </motion.div>
-            )}
+          {/* Left side - Logo/Brand */}
+          <div className="flex items-center space-x-3">
+            <FaSpaceShuttle className={`${isScrolled ? 'h-6 w-6' : 'h-8 w-8'} text-blue-400 transition-all duration-300`} />
+            <div>
+              <h1 className={`${isScrolled ? 'text-lg' : 'text-xl'} font-bold text-white transition-all duration-300`}>
+                PROJECT KEPLER
+              </h1>
+              <div className="text-xs text-gray-400 font-mono">
+                SPACE STATION COMMAND
+              </div>
+            </div>
           </div>
 
-          {/* Center - Logo (when scrolled) or Options (when not scrolled) */}
-          <div className="flex items-center">
-            {isScrolled ? (
-              <motion.div
-                key="scrolled-logo"
-                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ 
-                  duration: 0.4, 
-                  delay: 0.2, 
-                  ease: [0.25, 0.46, 0.45, 0.94]
-                }}
-                className="absolute left-1/2 -translate-x-1/2"
-              >
-                <h1 className="text-xl font-bold text-white">ProjectKepler</h1>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="normal-options"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ 
-                  duration: 0.3, 
-                  ease: [0.25, 0.46, 0.45, 0.94]
-                }}
-                className="flex space-x-1"
-              >
-                {options.map((option, index) => {
-                  const Icon = option.icon;
-                  return (
-                    <motion.div
-                      key={`center-${option.id}`}
-                      layoutId={`option-${option.id}`}
-                      transition={{
-                        duration: 0.5,
-                        delay: index * 0.05,
-                        ease: [0.25, 0.46, 0.45, 0.94]
-                      }}
-                    >
-                      <Button
-                        variant={pathname === option.path ? 'default' : 'ghost'}
-                        onClick={() => handleNavigation(option.path)}
-                        className={`
-                          flex items-center space-x-2 transition-all duration-300
-                          ${pathname === option.path 
-                            ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                            : 'text-slate-300 hover:text-white hover:bg-slate-800'
-                          }
-                        `}
-                      >
-                        <Icon className="h-4 w-4" />
-                        <span>{option.label}</span>
-                      </Button>
-                    </motion.div>
-                  );
-                })}
-              </motion.div>
-            )}
+          {/* Center - Navigation Options */}
+          <div className="flex items-center space-x-2">
+            {options.map((option) => {
+              const Icon = option.icon;
+              const isActive = pathname === option.path;
+              return (
+                <Button
+                  key={option.id}
+                  onClick={() => handleNavigation(option.path)}
+                  variant="ghost"
+                  size="sm"
+                  className={`
+                    flex items-center space-x-2 transition-all duration-300 text-xs relative
+                    ${isActive 
+                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
+                      : 'text-gray-300 hover:text-white hover:bg-white/10 border border-transparent hover:border-white/20'
+                    }
+                  `}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span className="hidden md:inline">{option.label}</span>
+                  <span className="hidden lg:inline text-xs text-gray-500">
+                    {option.category}
+                  </span>
+                </Button>
+              );
+            })}
           </div>
 
-          {/* Right side - Profile Button */}
-          <div>
+          {/* Right side - Profile */}
+          <div className="flex items-center space-x-4">
             <Button
-              variant="ghost"
               onClick={onProfileClick}
-              size={isScrolled ? "sm" : "default"}
-              className="text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-300 ease-out"
+              variant="ghost"
+              size="sm"
+              className="text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
             >
-              <FaUser className={`transition-all duration-300 ${isScrolled ? "h-3 w-3" : "h-4 w-4"}`} />
+              <FaUser className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Profile</span>
             </Button>
           </div>
         </div>

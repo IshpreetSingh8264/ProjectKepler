@@ -34,14 +34,25 @@ const ProfilePage = () => {
     await refreshUserProfile();
   };
 
-  const handleLogout = () => {
-    router.push('/');
+  const handleLogout = async () => {
+    try {
+      const { signOutUser } = await import('@/lib/firebaseClient');
+      await signOutUser();
+      router.push('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      // Still redirect even if sign out fails
+      router.push('/');
+    }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-        <LoadingSpinner message="Loading your profile..." />
+      <div className="min-h-screen space-station-bg relative overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 space-grid opacity-20"></div>
+        <div className="relative z-10">
+          <LoadingSpinner message="Loading your profile..." />
+        </div>
       </div>
     );
   }
@@ -54,11 +65,14 @@ const ProfilePage = () => {
 
   return (
     <PageTransition pageKey="profile">
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="min-h-screen space-station-bg relative overflow-hidden">
+        {/* Space Grid Background */}
+        <div className="absolute inset-0 space-grid opacity-20"></div>
+        
         {/* Only show navbar if not editing (ProfileEdit has its own header) */}
         {!showEdit && <Navbar onProfileClick={handleProfileClick} />}
         
-        <div className={!showEdit ? "container mx-auto px-4 py-8 pt-24" : ""}>
+        <div className={!showEdit ? "container mx-auto px-4 py-8 pt-24 relative z-10" : ""}>
           {!userProfile ? (
             // No profile exists, show ProfileForm
             <LazyWrapper>
@@ -94,7 +108,7 @@ const ProfilePage = () => {
                 </div>
               </div>
               
-              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-lg p-8">
+              <div className="space-card rounded-lg p-8">
                 <div className="grid md:grid-cols-2 gap-8">
                   <div>
                     <h2 className="text-xl font-semibold text-white mb-4">Personal Information</h2>

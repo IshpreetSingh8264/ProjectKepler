@@ -14,35 +14,91 @@ const ProcessingOverlay = ({ isProcessing }: ProcessingOverlayProps) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="absolute inset-0 bg-slate-900/70 flex items-center justify-center"
+          className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-blue-900/40 to-slate-900/80 backdrop-blur-sm flex items-center justify-center"
         >
+          {/* Scanning Lines */}
+          <div className="absolute inset-0">
+            <motion.div
+              className="absolute w-full h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent"
+              animate={{
+                y: [0, '100vh'],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+            />
+            <motion.div
+              className="absolute h-full w-0.5 bg-gradient-to-b from-transparent via-blue-400 to-transparent"
+              animate={{
+                x: [0, '100vw'],
+              }}
+              transition={{
+                duration: 2.5,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+            />
+          </div>
+
           <motion.div
-            className="text-center"
+            className="text-center relative z-10"
             animate={{
-              scale: [1, 1.05, 1],
+              scale: [1, 1.02, 1],
             }}
             transition={{
-              duration: 1.5,
+              duration: 2,
               repeat: Infinity,
               ease: "easeInOut"
             }}
           >
-            <div className="text-white text-lg font-semibold mb-3">
-              Processing...
+            {/* Enhanced Processing Icon */}
+            <motion.div
+              className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center mx-auto mb-6"
+              animate={{
+                rotate: 360,
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+            >
+              <motion.div
+                className="w-12 h-12 rounded-full border-4 border-white border-t-transparent"
+                animate={{
+                  rotate: -360,
+                }}
+                transition={{
+                  duration: 1,
+                  repeat: Infinity,
+                  ease: 'linear',
+                }}
+              />
+            </motion.div>
+
+            <div className="text-white text-xl font-semibold mb-2">
+              AI Analysis in Progress
             </div>
-            <div className="flex space-x-1 justify-center">
-              {[0, 1, 2].map((i) => (
+            <div className="text-cyan-300 text-sm mb-4 font-mono">
+              Scanning for space station objects...
+            </div>
+            
+            {/* Enhanced Progress Dots */}
+            <div className="flex space-x-2 justify-center">
+              {[0, 1, 2, 3, 4].map((i) => (
                 <motion.div
                   key={i}
-                  className="w-3 h-3 bg-blue-400 rounded-full"
+                  className="w-2 h-2 bg-cyan-400 rounded-full"
                   animate={{
-                    scale: [1, 1.5, 1],
-                    opacity: [0.5, 1, 0.5]
+                    scale: [1, 1.8, 1],
+                    opacity: [0.3, 1, 0.3]
                   }}
                   transition={{
-                    duration: 0.8,
+                    duration: 1.2,
                     repeat: Infinity,
-                    delay: i * 0.2
+                    delay: i * 0.15
                   }}
                 />
               ))}
