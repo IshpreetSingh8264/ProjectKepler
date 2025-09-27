@@ -16,6 +16,7 @@ const FloatingParticles = lazy(() => import('@/components/common/FloatingParticl
 const HomeContent = () => {
   const router = useRouter();
   const { user } = useAuth();
+  console.log("data: ",user)
 
   const handleProfileClick = () => {
     // Navigate to profile page
@@ -87,7 +88,7 @@ const HomeContent = () => {
                 className="mb-8"
               >
                 <p className="text-slate-400">
-                  Welcome back, <span className="text-blue-400">{user.email}</span>!
+                  Welcome back, <span className="text-blue-400">{user.displayName ? user.displayName : user.email}</span>!
                 </p>
               </motion.div>
             )}
