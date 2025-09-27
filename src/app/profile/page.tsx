@@ -4,7 +4,7 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar, PageTransition, LoadingSpinner, LazyWrapper } from '@/components/common';
 import { useAuth } from '@/lib/authContext';
-import { getUserProfile, UserProfile } from '@/lib/firestoreUser';
+import { UserProfile } from '@/lib/firestoreUser';
 
 // Lazy load components
 const ProfileEdit = lazy(() => import('@/components/profile/ProfileEdit'));
@@ -12,36 +12,8 @@ const ProfileForm = lazy(() => import('@/components/profile/ProfileForm'));
 
 const ProfilePage = () => {
   const router = useRouter();
-  const { user, loading } = useAuth();
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const { user, userProfile, loading, refreshUserProfile } = useAuth();
   const [showEdit, setShowEdit] = useState(false);
-  const [profileLoading, setProfileLoading] = useState(true);
-
-  useEffect(() => {
-    const loadUserProfile = async () => {
-      if (!user) {
-        setProfileLoading(false);
-        return;
-      }
-
-      try {
-        const profile = await getUserProfile(user.uid);
-        setUserProfile(profile);
-        // If no profile exists, show the ProfileForm
-        if (!profile) {
-          setShowEdit(false);
-        }
-      } catch (error) {
-        console.error('Error loading user profile:', error);
-      } finally {
-        setProfileLoading(false);
-      }
-    };
-
-    if (!loading) {
-      loadUserProfile();
-    }
-  }, [user, loading]);
 
   const handleProfileClick = () => {
     // Already on profile page, toggle edit mode
@@ -50,31 +22,23 @@ const ProfilePage = () => {
     }
   };
 
-  const handleProfileComplete = () => {
+  const handleProfileComplete = async () => {
     // Reload profile after completion
-    if (user) {
-      getUserProfile(user.uid).then(profile => {
-        setUserProfile(profile);
-        setShowEdit(false);
-      });
-    }
+    await refreshUserProfile();
+    setShowEdit(false);
   };
 
-  const handleBackFromEdit = () => {
+  const handleBackFromEdit = async () => {
     setShowEdit(false);
     // Reload profile to get latest data
-    if (user) {
-      getUserProfile(user.uid).then(profile => {
-        setUserProfile(profile);
-      });
-    }
+    await refreshUserProfile();
   };
 
   const handleLogout = () => {
     router.push('/');
   };
 
-  if (loading || profileLoading) {
+  if (loading) {
     return (
       <PageTransition pageKey="profile">
         <LoadingSpinner message="Loading your profile..." />

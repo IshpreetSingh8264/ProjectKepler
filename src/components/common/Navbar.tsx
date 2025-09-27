@@ -20,7 +20,7 @@ const Navbar: React.FC<NavbarProps> = ({ onProfileClick }) => {
     if (pathname === '/') return 'home';
     if (pathname === '/image') return 'image';
     if (pathname === '/video') return 'video';
-    if (pathname === '/api-docs') return 'api';
+    if (pathname === '/developer') return 'developer';
     return 'home';
   };
 
@@ -41,7 +41,7 @@ const Navbar: React.FC<NavbarProps> = ({ onProfileClick }) => {
     { id: 'home', label: 'Home', icon: FaHome, path: '/' },
     { id: 'image', label: 'Image', icon: FaImage, path: '/image' },
     { id: 'video', label: 'Video', icon: FaVideo, path: '/video' },
-    { id: 'api', label: 'API', icon: FaCode, path: '/api-docs' },
+    { id: 'developer', label: 'Developer', icon: FaCode, path: '/developer' },
   ];
 
   const handleNavigation = (path: string) => {

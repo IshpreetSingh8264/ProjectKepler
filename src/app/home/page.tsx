@@ -15,11 +15,18 @@ const FloatingParticles = lazy(() => import('@/components/common/FloatingParticl
 
 const HomeContent = () => {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
 
   const handleProfileClick = () => {
     // Navigate to profile page
     router.push('/profile');
+  };
+
+  const getDisplayName = () => {
+    if (userProfile?.displayName) return userProfile.displayName;
+    if (userProfile?.username) return userProfile.username;
+    if (user?.email) return user.email.split('@')[0];
+    return 'User';
   };
 
   const features = [
@@ -41,11 +48,11 @@ const HomeContent = () => {
     },
     {
       id: 'api',
-      title: 'API Documentation',
-      description: 'Explore our comprehensive API documentation',
+      title: 'Developer Documentation',
+      description: 'Complete API documentation with examples and code samples',
       icon: FaCode,
       color: 'from-purple-600 to-pink-600',
-      path: '/api-docs'
+      path: '/developer'
     }
   ];
 
@@ -87,7 +94,7 @@ const HomeContent = () => {
                 className="mb-8"
               >
                 <p className="text-slate-400">
-                  Welcome back, <span className="text-blue-400">{user.email}</span>!
+                  Welcome back, <span className="text-blue-400">{getDisplayName()}</span>!
                 </p>
               </motion.div>
             )}
