@@ -24,11 +24,7 @@ export default function App() {
   }, [user, loading, router]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   // Show login form if not authenticated
@@ -41,9 +37,5 @@ export default function App() {
   }
 
   // This shouldn't be reached due to the useEffect redirect, but just in case
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-      <LoadingSpinner />
-    </div>
-  );
+  return <LoadingSpinner />;
 }

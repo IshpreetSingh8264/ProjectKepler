@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { FaKey, FaPlus, FaTrash, FaEye, FaEyeSlash, FaCopy, FaExclamationTriangle } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { LoadingSpinner } from '@/components/common';
 import { useAuth } from '@/lib/authContext';
 import { getUserApiKeys, createApiKey, deleteApiKey, ApiKey } from '@/lib/apiKeyManagement';
 import ApiKeyModal from './ApiKeyModal';
@@ -106,9 +107,12 @@ const ApiKeysManager: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4" />
-        <p className="text-slate-400">Loading your API keys...</p>
+      <div className="py-12">
+        <LoadingSpinner 
+          fullScreen={false} 
+          size="medium" 
+          message="Loading your API keys..." 
+        />
       </div>
     );
   }

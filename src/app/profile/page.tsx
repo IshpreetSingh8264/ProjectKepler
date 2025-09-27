@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/common';
 import { ProfileEdit, ProfileForm } from '@/components/profile';
-import { PageTransition } from '@/components/common';
+import { PageTransition, LoadingSpinner } from '@/components/common';
 import { useAuth } from '@/lib/authContext';
 import { getUserProfile, UserProfile } from '@/lib/firestoreUser';
 
@@ -75,14 +75,7 @@ const ProfilePage = () => {
   if (loading || profileLoading) {
     return (
       <PageTransition pageKey="profile">
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-          <Navbar onProfileClick={handleProfileClick} />
-          <div className="container mx-auto px-4 py-8 pt-24">
-            <div className="flex items-center justify-center min-h-[60vh]">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-            </div>
-          </div>
-        </div>
+        <LoadingSpinner message="Loading your profile..." />
       </PageTransition>
     );
   }

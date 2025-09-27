@@ -1,4 +1,4 @@
-  'use client';
+'use client';
 
 import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -43,7 +43,7 @@ const VideoPageContent = () => {
         const reader = new FileReader();
         reader.onload = (e) => {
           setSelectedVideo(e.target?.result as string);
-          setVideoUrl(''); // Clear URL input when file is selected
+          setVideoUrl('');
         };
         reader.readAsDataURL(file);
       }
@@ -56,7 +56,7 @@ const VideoPageContent = () => {
       const reader = new FileReader();
       reader.onload = (e) => {
         setSelectedVideo(e.target?.result as string);
-        setVideoUrl(''); // Clear URL input when file is selected
+        setVideoUrl('');
       };
       reader.readAsDataURL(file);
     }
@@ -68,9 +68,8 @@ const VideoPageContent = () => {
     }
   };
 
-  const handleDetect = () => {
+  const handleProcess = () => {
     setIsProcessing(true);
-    // Simulate processing time
     setTimeout(() => {
       setIsProcessing(false);
     }, 3000);
@@ -87,81 +86,94 @@ const VideoPageContent = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <Navbar onProfileClick={handleProfileClick} />      <div className="container mx-auto px-4 py-8 pt-24">
+      <Navbar onProfileClick={handleProfileClick} />
+      <div className="container mx-auto px-4 py-8 pt-24">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Video Processor</h1>
-            <p className="text-slate-400">Upload or link a video to process</p>
+          <div className="text-center mb-12">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              <FaVideo className="h-16 w-16 text-purple-500 mx-auto mb-4" />
+              <h1 className="text-4xl font-bold text-white mb-3">Video Processor</h1>
+              <p className="text-slate-400 text-lg">Analyze and process your videos with AI</p>
+            </motion.div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="max-w-2xl mx-auto space-y-8">
             {/* Upload Section */}
-            <Card className="bg-slate-800/50 border-slate-700 p-6">
-              <h2 className="text-xl font-semibold text-white mb-6">Upload Video</h2>
-              
-              {/* Drag & Drop Area */}
-              <motion.div
-                className={`
-                  border-2 border-dashed rounded-lg p-8 text-center transition-all duration-300
-                  ${isDragOver 
-                    ? 'border-blue-400 bg-blue-500/10' 
-                    : 'border-slate-600 hover:border-slate-500'
-                  }
-                `}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.2 }}
-              >
+            <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
+              <div className="p-8">
+                {/* Drag & Drop Area */}
                 <motion.div
-                  animate={isDragOver ? { scale: 1.1 } : { scale: 1 }}
+                  className={`
+                    border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300
+                    ${isDragOver 
+                      ? 'border-purple-400 bg-purple-500/10 scale-105' 
+                      : 'border-slate-600 hover:border-purple-500/50 hover:bg-slate-800/30'
+                    }
+                  `}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  whileHover={{ y: -2 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <FaUpload className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                  <p className="text-lg font-medium text-white mb-2">
-                    {isDragOver ? 'Drop your video here' : 'Drag & drop your video here'}
-                  </p>
-                  <p className="text-slate-400 mb-4">or</p>
-                  <Button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="bg-blue-600 hover:bg-blue-700"
+                  <motion.div
+                    animate={isDragOver ? { scale: 1.1 } : { scale: 1 }}
+                    transition={{ duration: 0.2 }}
                   >
-                    Select from Computer
-                  </Button>
+                    <FaUpload className="h-16 w-16 text-purple-400 mx-auto mb-6" />
+                    <h3 className="text-2xl font-semibold text-white mb-3">
+                      {isDragOver ? 'Drop it here!' : 'Upload Your Video'}
+                    </h3>
+                    <p className="text-slate-400 mb-6">Drag & drop or click to select</p>
+                    <Button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="bg-purple-600 hover:bg-purple-700 px-8 py-3 text-lg"
+                      size="lg"
+                    >
+                      Choose File
+                    </Button>
+                  </motion.div>
                 </motion.div>
-              </motion.div>
 
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="video/*"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="video/*"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
 
-              {/* URL Input */}
-              <div className="mt-6">
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Or enter video URL:
-                </label>
-                <div className="flex gap-2">
-                  <Input
-                    type="url"
-                    placeholder="https://example.com/video.mp4"
-                    value={videoUrl}
-                    onChange={(e) => setVideoUrl(e.target.value)}
-                    className="bg-slate-700 border-slate-600 text-white placeholder-slate-400"
-                  />
+                {/* Divider */}
+                <div className="flex items-center my-8">
+                  <div className="flex-1 border-t border-slate-600"></div>
+                  <span className="px-4 text-slate-400 text-sm">OR</span>
+                  <div className="flex-1 border-t border-slate-600"></div>
+                </div>
+
+                {/* URL Input */}
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <Input
+                      type="url"
+                      placeholder="Paste video URL here..."
+                      value={videoUrl}
+                      onChange={(e) => setVideoUrl(e.target.value)}
+                      className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-purple-500 h-12 text-lg"
+                    />
+                  </div>
                   <Button
                     onClick={handleUrlSubmit}
+                    className="bg-blue-600 hover:bg-blue-700 px-6 h-12"
                     disabled={!videoUrl.trim()}
-                    className="bg-green-600 hover:bg-green-700"
                   >
                     <FaLink className="h-4 w-4" />
                   </Button>
@@ -170,139 +182,64 @@ const VideoPageContent = () => {
             </Card>
 
             {/* Preview Section */}
-            <Card className="bg-slate-800/50 border-slate-700 p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-white">Video Preview</h2>
-                {selectedVideo && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={clearVideo}
-                    className="text-slate-300 border-slate-600 hover:bg-slate-700"
-                  >
-                    <FaTrash className="h-3 w-3" />
-                  </Button>
-                )}
-              </div>
-
-              <AnimatePresence mode="wait">
-                {selectedVideo ? (
-                  <motion.div
-                    key="video-preview"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3 }}
-                    className="relative"
-                  >
-                    <div className="relative rounded-lg overflow-hidden">
-                      <video
-                        src={selectedVideo}
-                        controls
-                        className="w-full h-64 bg-slate-900 rounded-lg"
-                      />
+            <AnimatePresence>
+              {selectedVideo && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
+                    <div className="p-6">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-xl font-semibold text-white">Video Preview</h3>
+                        <Button
+                          onClick={clearVideo}
+                          variant="outline"
+                          size="sm"
+                          className="border-slate-600 text-slate-300 hover:text-white hover:bg-slate-700"
+                        >
+                          <FaTrash className="h-4 w-4 mr-2" />
+                          Clear
+                        </Button>
+                      </div>
                       
-                      {/* Processing Animation Overlay */}
-                      <AnimatePresence>
-                        {isProcessing && (
-                          <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-slate-900/50 rounded-lg flex items-center justify-center"
-                          >
-                            {/* Processing Gradient Animation */}
-                            <motion.div
-                              className="absolute inset-0 bg-gradient-to-br from-blue-500/30 via-purple-500/20 to-transparent"
-                              animate={{
-                                background: [
-                                  'linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(147, 51, 234, 0.2) 50%, transparent 100%)',
-                                  'linear-gradient(135deg, rgba(147, 51, 234, 0.3) 0%, rgba(59, 130, 246, 0.2) 50%, transparent 100%)',
-                                  'linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(147, 51, 234, 0.2) 50%, transparent 100%)'
-                                ]
-                              }}
-                              transition={{
-                                duration: 2,
-                                repeat: Infinity,
-                                ease: "linear"
-                              }}
-                            />
-                            
-                            {/* Processing Text */}
-                            <motion.div
-                              className="relative z-10 text-center"
-                              animate={{
-                                scale: [1, 1.05, 1],
-                              }}
-                              transition={{
-                                duration: 1.5,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                              }}
-                            >
-                              <div className="text-white text-lg font-semibold mb-2">
-                                Processing...
-                              </div>
-                              <motion.div
-                                className="flex space-x-1 justify-center"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                              >
-                                {[0, 1, 2].map((i) => (
-                                  <motion.div
-                                    key={i}
-                                    className="w-2 h-2 bg-blue-400 rounded-full"
-                                    animate={{
-                                      scale: [1, 1.5, 1],
-                                      opacity: [0.5, 1, 0.5]
-                                    }}
-                                    transition={{
-                                      duration: 0.8,
-                                      repeat: Infinity,
-                                      delay: i * 0.2
-                                    }}
-                                  />
-                                ))}
-                              </motion.div>
-                            </motion.div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
+                      <div className="space-y-6">
+                        <div className="relative rounded-lg overflow-hidden bg-slate-900/50">
+                          <video
+                            src={selectedVideo}
+                            controls
+                            className="w-full h-64"
+                          />
+                        </div>
 
-                    {/* Detect Button */}
-                    <motion.div
-                      className="mt-4"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 }}
-                    >
-                      <Button
-                        onClick={handleDetect}
-                        disabled={isProcessing}
-                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50"
-                      >
-                        <FaPlay className="h-4 w-4 mr-2" />
-                        {isProcessing ? 'Processing...' : 'Detect'}
-                      </Button>
-                    </motion.div>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="no-video"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="h-64 border-2 border-dashed border-slate-600 rounded-lg flex items-center justify-center"
-                  >
-                    <div className="text-center">
-                      <FaVideo className="h-12 w-12 text-slate-500 mx-auto mb-2" />
-                      <p className="text-slate-400">No video selected</p>
+                        <div className="flex justify-center">
+                          <Button
+                            onClick={handleProcess}
+                            disabled={isProcessing}
+                            className="bg-green-600 hover:bg-green-700 px-8 py-3 text-lg"
+                            size="lg"
+                          >
+                            {isProcessing ? (
+                              <>
+                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3" />
+                                Processing...
+                              </>
+                            ) : (
+                              <>
+                                <FaPlay className="mr-3 h-5 w-5" />
+                                Process Video
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </Card>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </motion.div>
       </div>

@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { LoadingSpinner } from '@/components/common';
 import { useAuth } from '@/lib/authContext';
 import { signOutUser } from '@/lib/firebaseClient';
 import { 
@@ -171,11 +172,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({ onBack, onLogout }) => {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <div className="text-white">Loading...</div>
-      </div>
-    );
+    return <LoadingSpinner message="Loading your profile..." />;
   }
 
   return (
